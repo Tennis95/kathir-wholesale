@@ -105,13 +105,12 @@ export default function HomePage() {
               {/* Hero Image */}
               <div className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden" style={{ transform: `translateY(${scrollY * 0.2}px)` }}>
                 <Image
-                  src="/hero-image.jpg"
+                  src="/hero-image.png"
                   alt="Fresh Groceries"
-                  width={800}
-                  height={800}
-                  className="object-cover w-full h-full"
+                  width={600}
+                  height={600}
+                  className="object-contain"
                   priority
-                  style={{ mixBlendMode: 'screen' }}
                 />
               </div>
             </div>
