@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
@@ -101,15 +102,15 @@ export default function HomePage() {
                 }}
               ></div>
 
-              {/* Hero Image Placeholder */}
-              <div className="relative z-10 text-center" style={{ transform: `translateY(${scrollY * 0.2}px)` }}>
-                <div className="flex justify-center items-center gap-8 mb-8">
-                  <div className="text-9xl animate-bounce">👨‍🍳</div>
-                  <div className="text-9xl animate-bounce" style={{ animationDelay: '0.2s' }}>🛒</div>
-                </div>
-                <div className="text-3xl font-black" style={{ color: '#2D2D2D' }}>
-                  Premium Quality <br /> Groceries
-                </div>
+              {/* Hero Image */}
+              <div className="relative z-10" style={{ transform: `translateY(${scrollY * 0.2}px)` }}>
+                <Image
+                  src="/hero-image.jpg"
+                  alt="Fresh Groceries"
+                  width={400}
+                  height={400}
+                  className="object-contain"
+                />
               </div>
             </div>
           </div>
