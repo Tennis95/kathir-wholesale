@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { animate } from 'motion';
 import PillNav from './PillNav';
 import CartBadge from './CartBadge';
@@ -14,8 +14,10 @@ const NAV_LINKS = [
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const desktopCartRef = useRef<HTMLAnchorElement>(null);
   const mobileCartRef = useRef<HTMLAnchorElement>(null);
+  const accountRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const bump = (iconEl: HTMLElement | null) => {
@@ -35,6 +37,10 @@ export default function Header() {
     window.addEventListener('cart-fly-landed', handleLanded);
     return () => window.removeEventListener('cart-fly-landed', handleLanded);
   }, []);
+
+  const handleAccountClick = () => {
+    router.push('/auth/login');
+  };
 
   return (
     <header
@@ -58,7 +64,7 @@ export default function Header() {
           initialLoadAnimation={false}
         />
 
-        {/* Right: Cart + Auth + CTA (desktop) */}
+        {/* Right: Cart + Account Icon (desktop) */}
         <div className="hidden md:flex items-center gap-4 min-w-fit">
           <a
             ref={desktopCartRef}
@@ -78,77 +84,46 @@ export default function Header() {
             </span>
           </a>
 
-          <a
-            href="/auth/login"
-            className="px-6 py-2.5 rounded-lg font-semibold text-blue-700 transition-all duration-300"
-            style={{
-              background: '#E8F4FB',
-              border: '1.5px solid #8FD3F4',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#D4E8F7';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#E8F4FB';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            Login
-          </a>
-
-          <a
-            href="/auth/signup"
-            className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all duration-300 hover:shadow-xl"
-            style={{
-              background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-              boxShadow: '0 6px 20px rgba(45, 123, 168, 0.25)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(45, 123, 168, 0.35)';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(45, 123, 168, 0.25)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            Sign Up
-          </a>
-
-          <a
-            href="/contact"
-            className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all duration-300"
+          <button
+            ref={accountRef}
+            onClick={handleAccountClick}
+            className="flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-300 hover:scale-110"
             style={{
               background: '#2D7BA8',
+              boxShadow: '0 2px 8px rgba(45, 123, 168, 0.15)',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#1E5A7A';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#2D7BA8';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
+            aria-label="Account"
+            title="Account"
           >
-            Catalogue
-          </a>
+            <span style={{ fontSize: '22px' }}>👤</span>
+          </button>
         </div>
 
-        {/* Mobile: Cart icon (PillNav owns its own hamburger + mobile popover) */}
-        <a
-          ref={mobileCartRef}
-          id="header-cart-icon-mobile"
-          href="/checkout"
-          className="md:hidden relative flex items-center justify-center w-12 h-12 rounded-lg transition"
-          style={{ background: '#F0F9FE' }}
-          aria-label="View quote"
-        >
-          <span style={{ fontSize: '22px' }}>🛒</span>
-          <span className="absolute top-1 right-1">
-            <CartBadge />
-          </span>
-        </a>
+        {/* Mobile: Cart + Account icons */}
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={handleAccountClick}
+            className="flex items-center justify-center w-10 h-10 rounded-lg transition"
+            style={{ background: '#2D7BA8' }}
+            aria-label="Account"
+          >
+            <span style={{ fontSize: '18px' }}>👤</span>
+          </button>
+
+          <a
+            ref={mobileCartRef}
+            id="header-cart-icon-mobile"
+            href="/checkout"
+            className="relative flex items-center justify-center w-10 h-10 rounded-lg transition"
+            style={{ background: '#F0F9FE' }}
+            aria-label="View quote"
+          >
+            <span style={{ fontSize: '18px' }}>🛒</span>
+            <span className="absolute top-1 right-1">
+              <CartBadge />
+            </span>
+          </a>
+        </div>
       </div>
     </header>
   );
