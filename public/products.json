@@ -1,0 +1,452 @@
+[
+  {
+    "id": "27",
+    "name": "Appam idiyappam pathiri podi 1kg Kathir",
+    "category": "Ready to Cook",
+    "size": "1 kg",
+    "price": 3.19,
+    "stock": 47,
+    "inStock": true
+  },
+  {
+    "id": "75",
+    "name": "Barnyard millet 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 48,
+    "inStock": true
+  },
+  {
+    "id": "81",
+    "name": "Basmati rice Extra long creamy sella 1121 5kg Kathir",
+    "category": "Rice & Grains",
+    "size": "5 kg",
+    "price": 12.49,
+    "stock": 102,
+    "inStock": true
+  },
+  {
+    "id": "127",
+    "name": "Black chick peas(Kadala) 1kg Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 kg",
+    "price": 3.29,
+    "stock": 45,
+    "inStock": true
+  },
+  {
+    "id": "138",
+    "name": "Black rice (Kavuni) 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 6.99,
+    "stock": 50,
+    "inStock": true
+  },
+  {
+    "id": "238",
+    "name": "Chemba Puttupodi 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 3.39,
+    "stock": 47,
+    "inStock": true
+  },
+  {
+    "id": "348",
+    "name": "Cow peas (Vanpayar) 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 3.79,
+    "stock": 36,
+    "inStock": true
+  },
+  {
+    "id": "424",
+    "name": "Easy palappam podi 1kg Kathir",
+    "category": "Ready to Cook",
+    "size": "1 kg",
+    "price": 3.29,
+    "stock": 51,
+    "inStock": true
+  },
+  {
+    "id": "440",
+    "name": "Extra long sella Basmati rice 1kg 112l XXL Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 2.5,
+    "stock": 20,
+    "inStock": true
+  },
+  {
+    "id": "464",
+    "name": "Foxtail millet 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 48,
+    "inStock": true
+  },
+  {
+    "id": "721",
+    "name": "Kathir (Kaima Rice) 1 Kg (Loose)",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "722",
+    "name": "KATHIR BANANA CHIPS 250GM",
+    "category": "Snacks & Sweets",
+    "size": "250 gm",
+    "price": 3.5,
+    "stock": 98,
+    "inStock": true
+  },
+  {
+    "id": "723",
+    "name": "KATHIR BANANA CHIPS 500GM",
+    "category": "Snacks & Sweets",
+    "size": "500 gm",
+    "price": 5.0,
+    "stock": 5,
+    "inStock": true
+  },
+  {
+    "id": "724",
+    "name": "Kathir Basmati Rice 1Kg (Loose) 1121 Extra Long Basmati Rice",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 2.69,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "725",
+    "name": "Kathir Black Chick Pea [Kadala] (Whole) 1 +1",
+    "category": "Groceries",
+    "size": "1 unit",
+    "price": 6.99,
+    "stock": 969,
+    "inStock": true
+  },
+  {
+    "id": "726",
+    "name": "Kathir Cow Pea (Vanparu) 1 + 1",
+    "category": "Groceries",
+    "size": "1 unit",
+    "price": 6.99,
+    "stock": 964,
+    "inStock": true
+  },
+  {
+    "id": "727",
+    "name": "KATHIR JACKFRUIT CHIPS 200GM",
+    "category": "Snacks & Sweets",
+    "size": "200 gm",
+    "price": 2.5,
+    "stock": 7,
+    "inStock": true
+  },
+  {
+    "id": "728",
+    "name": "KATHIR KERALA MIXTURE SPICY 300GM",
+    "category": "Snacks & Sweets",
+    "size": "300 gm",
+    "price": 2.69,
+    "stock": 11,
+    "inStock": true
+  },
+  {
+    "id": "729",
+    "name": "KATHIR MADURASEVA 150GM",
+    "category": "Groceries",
+    "size": "150 gm",
+    "price": 1.69,
+    "stock": 13,
+    "inStock": true
+  },
+  {
+    "id": "730",
+    "name": "KATHIR MALABAR MURUKU 150GM",
+    "category": "Snacks & Sweets",
+    "size": "150 gm",
+    "price": 1.59,
+    "stock": 112,
+    "inStock": true
+  },
+  {
+    "id": "731",
+    "name": "Kathir matta rice 2kg \"LOOSE\"",
+    "category": "Flour & Baking",
+    "size": "2 kg",
+    "price": 3.99,
+    "stock": 11,
+    "inStock": true
+  },
+  {
+    "id": "732",
+    "name": "Kathir Mung Bean (Cheruparu) 1+ 1",
+    "category": "Groceries",
+    "size": "1 unit",
+    "price": 6.99,
+    "stock": 958,
+    "inStock": true
+  },
+  {
+    "id": "733",
+    "name": "KATHIR MURUKKU TOMATO 150GM",
+    "category": "Vegetables",
+    "size": "150 gm",
+    "price": 1.59,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "734",
+    "name": "KATHIR PAKKAVADA 150GM",
+    "category": "Ready to Cook",
+    "size": "150 gm",
+    "price": 2.19,
+    "stock": 10,
+    "inStock": true
+  },
+  {
+    "id": "735",
+    "name": "Kathir Palakkadan Matta Rice) 1 Kg (Loose)",
+    "category": "Flour & Baking",
+    "size": "1 kg",
+    "price": 1.99,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "736",
+    "name": "KATHIR RICE MURUKKU 150GM",
+    "category": "Snacks & Sweets",
+    "size": "150 gm",
+    "price": 1.59,
+    "stock": 11,
+    "inStock": true
+  },
+  {
+    "id": "737",
+    "name": "Kathir rip",
+    "category": "Groceries",
+    "size": "1 unit",
+    "price": 0,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "738",
+    "name": "KATHIR RIPE BANANA CHIPS 150GM",
+    "category": "Snacks & Sweets",
+    "size": "150 gm",
+    "price": 1.59,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "739",
+    "name": "Kathir Shakaravati 150GM",
+    "category": "Groceries",
+    "size": "150 gm",
+    "price": 2.19,
+    "stock": 180,
+    "inStock": true
+  },
+  {
+    "id": "740",
+    "name": "KATHIR TAPIOCCA CHIPS ROUND SALT 150GM",
+    "category": "Spices & Masalas",
+    "size": "150 gm",
+    "price": 1.99,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "741",
+    "name": "Kathir Toor Dhal (Naden Sambar Parupu) 1+1",
+    "category": "Lentils & Pulses",
+    "size": "1 unit",
+    "price": 6.99,
+    "stock": 970,
+    "inStock": true
+  },
+  {
+    "id": "742",
+    "name": "Kathir Urid [Uzhunnu] Parippu (Whole) 1+1",
+    "category": "Ready to Cook",
+    "size": "1 unit",
+    "price": 6.99,
+    "stock": 913,
+    "inStock": true
+  },
+  {
+    "id": "743",
+    "name": "Kathir White Raw (pachari) Rice 1Kg LOOSE",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 2.89,
+    "stock": 10,
+    "inStock": true
+  },
+  {
+    "id": "770",
+    "name": "Kodo millet 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 44,
+    "inStock": true
+  },
+  {
+    "id": "839",
+    "name": "Little millet 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 46,
+    "inStock": true
+  },
+  {
+    "id": "875",
+    "name": "Mappilai samba 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 4.99,
+    "stock": 44,
+    "inStock": true
+  },
+  {
+    "id": "896",
+    "name": "Matta rice 10Kg Ponkathir",
+    "category": "Flour & Baking",
+    "size": "10 kg",
+    "price": 14.99,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "945",
+    "name": "Moong dhal(Cherupayar parippu) 1kg Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 17,
+    "inStock": true
+  },
+  {
+    "id": "958",
+    "name": "Mung bean(Cherupayar) 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 46,
+    "inStock": true
+  },
+  {
+    "id": "1078",
+    "name": "Pearl millet 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 49,
+    "inStock": true
+  },
+  {
+    "id": "1108",
+    "name": "Pottu Kadala 500 Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 unit",
+    "price": 2.3,
+    "stock": 42,
+    "inStock": true
+  },
+  {
+    "id": "1148",
+    "name": "Puttupodi(white)1KG Ponkathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 2.75,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "1155",
+    "name": "Ragi whole(Finger Millet) 1kg Kathir",
+    "category": "Rice & Grains",
+    "size": "1 kg",
+    "price": 4.39,
+    "stock": 25,
+    "inStock": true
+  },
+  {
+    "id": "1173",
+    "name": "Red lentils 1kg Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 kg",
+    "price": 2.99,
+    "stock": 50,
+    "inStock": true
+  },
+  {
+    "id": "1204",
+    "name": "Rice powder 1kg Ponkathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 2.79,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "1305",
+    "name": "Sliced coconut 400g Ponkathir",
+    "category": "Groceries",
+    "size": "400 g",
+    "price": 2.99,
+    "stock": 0,
+    "inStock": true
+  },
+  {
+    "id": "1416",
+    "name": "Toor dhal 1kg Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 48,
+    "inStock": true
+  },
+  {
+    "id": "1438",
+    "name": "Urid Dhal whole 1kg Kathir",
+    "category": "Lentils & Pulses",
+    "size": "1 kg",
+    "price": 3.99,
+    "stock": 39,
+    "inStock": true
+  },
+  {
+    "id": "1482",
+    "name": "White chick peas 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 3.89,
+    "stock": 41,
+    "inStock": true
+  },
+  {
+    "id": "1486",
+    "name": "White Puttupodi 1kg Kathir",
+    "category": "Groceries",
+    "size": "1 kg",
+    "price": 2.79,
+    "stock": 48,
+    "inStock": true
+  }
+]

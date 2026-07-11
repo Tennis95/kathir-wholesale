@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Manrope, Playfair_Display } from "next/font/google";
+import { Geist, Geist_Mono, Manrope, Playfair_Display, Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import QuickActionsDock from "./components/QuickActionsDock";
 import PWAInit from "./components/PWAInit";
 import Toast from "./components/Toast";
 import Analytics from "./components/Analytics";
 import MobileOptimized from "./components/MobileOptimized";
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,18 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["700", "800"],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const viewport: Viewport = {
@@ -60,15 +74,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${playfair.variable} h-full`}>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${playfair.variable} ${poppins.variable} ${inter.variable} h-full`}>
       <body suppressHydrationWarning className="min-h-screen flex flex-col" style={{ background: '#ffffff' }}>
-        <Header />
-        <main className="flex-1 bg-white">{children}</main>
-        <Footer />
-        <PWAInit />
-        <Toast />
-        <Analytics />
-        <MobileOptimized />
+        <AuthProvider>
+          <Header />
+          <main className="flex-1 bg-white">{children}</main>
+          <Footer />
+          <QuickActionsDock />
+          <PWAInit />
+          <Toast />
+          <Analytics />
+          <MobileOptimized />
+        </AuthProvider>
       </body>
     </html>
   );

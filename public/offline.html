@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KATHIR LTD - Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #87CEEB 0%, #6B99CC 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            color: #6B3E24;
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #8B5A3C;
+            font-size: 14px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .features {
+            background: #f0f8ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .feature:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature strong {
+            color: #6B3E24;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #87CEEB 0%, #6B99CC 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(135, 206, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6B3E24;
+            border: 2px solid #B3E5FC;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f8ff;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #87CEEB 0%, #B3E5FC 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📱</div>
+        <div class="icon">📡</div>
+        <h1>You're Offline</h1>
+        <p class="subtitle">Connection Lost</p>
+        <p>No internet connection detected. Some features may be limited.</p>
+
+        <div class="features">
+            <div class="feature">
+                <span>✓</span>
+                <span><strong>Browse cached products</strong> from your last visit</span>
+            </div>
+            <div class="feature">
+                <span>✓</span>
+                <span><strong>View your cart</strong> and wishlist</span>
+            </div>
+            <div class="feature">
+                <span>✓</span>
+                <span><strong>Read categories</strong> and product details</span>
+            </div>
+            <div class="feature">
+                <span>⚠</span>
+                <span><strong>Cannot place orders</strong> without connection</span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" onclick="location.reload()">
+                🔄 Try Again
+            </button>
+            <button class="btn-secondary" onclick="location.href = '/'">
+                🏠 Go Home
+            </button>
+        </div>
+
+        <p class="footer-text">
+            We'll automatically reconnect when your internet returns.
+            <br>
+            KATHIR LTD - Wholesale Excellence
+        </p>
+    </div>
+
+    <script>
+        // Show when connection returns
+        window.addEventListener('online', () => {
+            alert('✓ You are back online!');
+            location.reload();
+        });
+    </script>
+</body>
+</html>
