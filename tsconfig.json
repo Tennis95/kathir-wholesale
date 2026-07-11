@@ -19,6 +19,9 @@
       }
     ],
     "paths": {
+      "@/components/*": ["./app/components/*"],
+      "@/context/*": ["./app/context/*"],
+      "@/lib/*": ["./lib/*"],
       "@/*": ["./app/*", "./*"]
     }
   },
