@@ -18,16 +18,16 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    shippingStreet: '',
-    shippingCity: '',
-    shippingState: '',
-    shippingZip: '',
+    shippingStreet: '123 Main Street',
+    shippingCity: 'London',
+    shippingState: 'London',
+    shippingZip: 'SW1A 1AA',
     shippingCountry: 'UK',
     sameAsBilling: true,
-    billingStreet: '',
-    billingCity: '',
-    billingState: '',
-    billingZip: '',
+    billingStreet: '123 Main Street',
+    billingCity: 'London',
+    billingState: 'London',
+    billingZip: 'SW1A 1AA',
     billingCountry: 'UK',
   });
 
@@ -99,159 +99,196 @@ export default function CheckoutPage() {
       if (res.ok) {
         const data = await res.json();
         localStorage.removeItem('kathir-cart');
-        router.push(`/account/orders/${data.order._id}`);
+        router.push(`/account/orders`);
+      } else {
+        alert('Failed to place order');
       }
     } catch (error) {
-      console.error('Error creating order:', error);
-      alert('Error creating order');
+      console.error('Checkout error:', error);
+      alert('Error during checkout');
     } finally {
       setLoading(false);
     }
   };
 
-  if (cart.length === 0) {
-    return (
-      <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center py-12 px-4">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: '#1F2937' }}>Your Cart is Empty</h1>
-          <a
-            href="/categories"
-            className="inline-block px-8 py-3 rounded-lg font-bold text-white"
-            style={{
-              background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-              boxShadow: '0 4px 12px rgba(45, 123, 168, 0.25)',
-            }}
-          >
-            Continue Shopping
-          </a>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8" style={{ color: '#1F2937' }}>Checkout</h1>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-b from-blue-50 to-white"
+    >
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+        <h1 className="text-4xl font-bold mb-8" style={{ color: '#2D7BA8' }}>
+          Checkout
+        </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Checkout Form */}
-          <motion.div
-            className="bg-white rounded-2xl shadow-lg p-8"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>Shipping Address</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="shippingStreet"
-                  placeholder="Street Address"
-                  value={formData.shippingStreet}
-                  onChange={handleChange}
-                  required
-                  className="col-span-2 px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-                <input
-                  type="text"
-                  name="shippingCity"
-                  placeholder="City"
-                  value={formData.shippingCity}
-                  onChange={handleChange}
-                  required
-                  className="px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-                <input
-                  type="text"
-                  name="shippingState"
-                  placeholder="State/County"
-                  value={formData.shippingState}
-                  onChange={handleChange}
-                  required
-                  className="px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-                <input
-                  type="text"
-                  name="shippingZip"
-                  placeholder="Postal Code"
-                  value={formData.shippingZip}
-                  onChange={handleChange}
-                  required
-                  className="px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-                <select
-                  name="shippingCountry"
-                  value={formData.shippingCountry}
-                  onChange={handleChange}
-                  className="px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Shipping Form */}
+          <div className="md:col-span-2">
+            <motion.form
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              onSubmit={handleSubmit}
+              className="bg-white rounded-2xl shadow-lg p-8 border border-blue-100"
+            >
+              <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>
+                Shipping Address
+              </h2>
+
+              <div className="space-y-6">
+                {/* Street */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Street Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="shippingStreet"
+                    value={formData.shippingStreet}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                    style={{ borderColor: '#E5E7EB' }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="shippingCity"
+                      value={formData.shippingCity}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                      style={{ borderColor: '#E5E7EB' }}
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      State/Region <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="shippingState"
+                      value={formData.shippingState}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                      style={{ borderColor: '#E5E7EB' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Postal Code */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Postal Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="shippingZip"
+                      value={formData.shippingZip}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                      style={{ borderColor: '#E5E7EB' }}
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Country <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="shippingCountry"
+                      value={formData.shippingCountry}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                      style={{ borderColor: '#E5E7EB' }}
+                    >
+                      <option>UK</option>
+                      <option>USA</option>
+                      <option>Canada</option>
+                      <option>Australia</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || cart.length === 0}
+                  className="w-full py-4 rounded-lg font-bold text-white text-lg transition-all"
+                  style={{
+                    background: loading || cart.length === 0 ? '#A0C9E5' : 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
+                  }}
                 >
-                  <option value="UK">United Kingdom</option>
-                  <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="IE">Ireland</option>
-                </select>
+                  {loading ? 'Processing...' : `Place Order - £${total.toFixed(2)}`}
+                </button>
               </div>
-
-              <motion.button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 rounded-lg font-bold text-white transition transform hover:scale-105 disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-                  boxShadow: '0 4px 12px rgba(45, 123, 168, 0.25)',
-                }}
-              >
-                {loading ? 'Processing...' : '✓ Place Order'}
-              </motion.button>
-            </form>
-          </motion.div>
+            </motion.form>
+          </div>
 
           {/* Order Summary */}
           <motion.div
-            className="bg-white rounded-2xl shadow-lg p-8 h-fit"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-lg p-8 border border-blue-100 h-fit sticky top-24"
           >
-            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>Order Summary</h2>
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>
+              Order Summary
+            </h2>
 
-            <div className="space-y-4 mb-6">
-              {cart.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span>{item.name} x{item.quantity}</span>
-                  <span className="font-bold">£{(item.price * item.quantity).toFixed(2)}</span>
+            {cart.length === 0 ? (
+              <p className="text-gray-500 mb-6">Your cart is empty</p>
+            ) : (
+              <>
+                <div className="space-y-4 mb-6 pb-6 border-b-2" style={{ borderColor: '#E8F4FB' }}>
+                  {cart.map(item => (
+                    <div key={item.id} className="flex justify-between text-sm">
+                      <span className="text-gray-700">{item.name} x{item.quantity}</span>
+                      <span className="font-semibold">£{(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="border-t border-gray-200 pt-4 space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>£{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>VAT (20%)</span>
-                <span>£{tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>{shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}</span>
-              </div>
-              <div className="border-t border-gray-200 pt-2 flex justify-between text-lg font-bold" style={{ color: '#2D7BA8' }}>
-                <span>Total</span>
-                <span>£{total.toFixed(2)}</span>
-              </div>
-            </div>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between text-gray-700">
+                    <span>Subtotal:</span>
+                    <span>£{subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>VAT (20%):</span>
+                    <span>£{tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-700">
+                    <span>Shipping:</span>
+                    <span>{shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-bold pt-3 border-t-2" style={{ borderColor: '#E8F4FB', color: '#2D7BA8' }}>
+                    <span>Total:</span>
+                    <span>£{total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-400 mt-4">
+                  💡 Form is pre-filled with test data. Click "Place Order" to proceed.
+                </p>
+              </>
+            )}
           </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

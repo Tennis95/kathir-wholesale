@@ -58,8 +58,8 @@ export default function Header() {
           initialLoadAnimation={false}
         />
 
-        {/* Right: Cart + CTA (desktop) */}
-        <div className="hidden md:flex items-center gap-6 min-w-fit">
+        {/* Right: Cart + Auth + CTA (desktop) */}
+        <div className="hidden md:flex items-center gap-4 min-w-fit">
           <a
             ref={desktopCartRef}
             id="header-cart-icon-desktop"
@@ -79,12 +79,30 @@ export default function Header() {
           </a>
 
           <a
-            href="/contact"
-            className="px-8 py-3 rounded-lg font-semibold text-white transition-all duration-300 hover:shadow-xl"
+            href="/auth/login"
+            className="px-6 py-2.5 rounded-lg font-semibold text-blue-700 transition-all duration-300"
+            style={{
+              background: '#E8F4FB',
+              border: '1.5px solid #8FD3F4',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#D4E8F7';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#E8F4FB';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            Login
+          </a>
+
+          <a
+            href="/auth/signup"
+            className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all duration-300 hover:shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
               boxShadow: '0 6px 20px rgba(45, 123, 168, 0.25)',
-              letterSpacing: '0.5px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 12px 30px rgba(45, 123, 168, 0.35)';
@@ -95,7 +113,25 @@ export default function Header() {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            Request Catalogue
+            Sign Up
+          </a>
+
+          <a
+            href="/contact"
+            className="px-6 py-2.5 rounded-lg font-semibold text-white transition-all duration-300"
+            style={{
+              background: '#2D7BA8',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#1E5A7A';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#2D7BA8';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            Catalogue
           </a>
         </div>
 
