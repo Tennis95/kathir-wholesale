@@ -9,7 +9,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const productsCollection = db.collection<Product>('products');
     const { id } = await params;
 
-    const product = await productsCollection.findOne({ _id: new ObjectId(id) });
+    const product = await productsCollection.findOne({ _id: new ObjectId(id) } as any);
 
     if (!product) {
       return NextResponse.json({ status: 'error', message: 'Product not found' }, { status: 404 });
@@ -37,7 +37,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     };
 
     const result = await productsCollection.updateOne(
-      { _id: new ObjectId(id) },
+      { _id: new ObjectId(id) } as any,
       { $set: updatedProduct }
     );
 
@@ -63,7 +63,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const productsCollection = db.collection<Product>('products');
     const { id } = await params;
 
-    const result = await productsCollection.deleteOne({ _id: new ObjectId(id) });
+    const result = await productsCollection.deleteOne({ _id: new ObjectId(id) } as any);
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ status: 'error', message: 'Product not found' }, { status: 404 });
