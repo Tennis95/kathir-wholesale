@@ -27,11 +27,12 @@ async function verifyAdmin(req: NextRequest) {
 // GET single product
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
-    const product = await Product.findById(params.id);
+    const product = await Product.findById(id);
 
     if (!product) {
       return NextResponse.json(
@@ -52,9 +53,10 @@ export async function GET(
 // PUT update product
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await verifyAdmin(req);
     if (!auth.valid) {
       return NextResponse.json(
@@ -69,7 +71,7 @@ export async function PUT(
     const { name, category, description, price, size, stock, discount } = body;
 
     const product = await Product.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         category,
@@ -105,9 +107,10 @@ export async function PUT(
 // DELETE product
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await verifyAdmin(req);
     if (!auth.valid) {
       return NextResponse.json(
@@ -118,7 +121,7 @@ export async function DELETE(
 
     await connectDB();
 
-    const product = await Product.findByIdAndDelete(params.id);
+    const product = await Product.findByIdAndDelete(id);
 
     if (!product) {
       return NextResponse.json(

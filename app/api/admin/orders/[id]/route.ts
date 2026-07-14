@@ -25,11 +25,12 @@ async function verifyAdmin(req: NextRequest) {
 // GET single order
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
-    const order = await Order.findById(params.id).populate('userId', 'name email phone');
+    const order = await Order.findById(id).populate('userId', 'name email phone');
 
     if (!order) {
       return NextResponse.json({ message: 'Order not found' }, { status: 404 });
@@ -47,9 +48,10 @@ export async function GET(
 // PUT update order status
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await verifyAdmin(req);
     if (!auth.valid) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -61,7 +63,7 @@ export async function PUT(
     const { status, paymentStatus, trackingNumber, estimatedDelivery } = body;
 
     const order = await Order.findByIdAndUpdate(
-      params.id,
+      id,
       {
         status,
         paymentStatus,
