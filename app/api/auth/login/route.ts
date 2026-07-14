@@ -5,12 +5,18 @@ import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('[Auth] Login request received');
+
+    // Connect to database
+    console.log('[Auth] Connecting to database...');
     await connectDB();
+    console.log('[Auth] Database connected successfully');
 
     const { email, password } = await req.json();
 
     // Validation
     if (!email || !password) {
+      console.warn('[Auth] Missing email or password');
       return NextResponse.json(
         { message: 'Please provide email and password' },
         { status: 400 }
@@ -18,9 +24,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Find user and include password
+    console.log('[Auth] Looking up user:', email);
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
+      console.warn('[Auth] User not found:', email);
       return NextResponse.json(
         { message: 'Invalid email or password' },
         { status: 401 }
@@ -31,11 +39,14 @@ export async function POST(req: NextRequest) {
     const isPasswordCorrect = await user.matchPassword(password);
 
     if (!isPasswordCorrect) {
+      console.warn('[Auth] Invalid password for user:', email);
       return NextResponse.json(
         { message: 'Invalid email or password' },
         { status: 401 }
       );
     }
+
+    console.log('[Auth] ✅ User authenticated successfully:', email);
 
     // Create JWT token
     const token = jwt.sign(
@@ -68,6 +79,27 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error: any) {
+    console.error('[Auth] ❌ Login error:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+    });
+
+    // Provide specific error messages
+    if (error.message?.includes('querySrv')) {
+      return NextResponse.json(
+        { message: 'Database connection failed. Please check your internet connection or contact support.' },
+        { status: 503 }
+      );
+    }
+
+    if (error.message?.includes('ENOTFOUND')) {
+      return NextResponse.json(
+        { message: 'Cannot reach MongoDB. Check your network connection.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { message: error.message || 'Error logging in' },
       { status: 500 }

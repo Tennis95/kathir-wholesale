@@ -13,6 +13,7 @@ function CategoriesContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('featured');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [notification, setNotification] = useState<string | null>(null);
   const productsPerPage = 15;
 
   useEffect(() => {
@@ -58,7 +59,8 @@ function CategoriesContent() {
     }
     setCart(newCart);
     localStorage.setItem('kathir-cart', JSON.stringify(newCart));
-    alert(`${quantity} x ${product.name} added to cart!`);
+    setNotification(`${quantity} x ${product.name} added to cart!`);
+    setTimeout(() => setNotification(null), 3000);
     setQuantities(prev => ({ ...prev, [product.id]: 1 }));
   };
 
@@ -75,7 +77,7 @@ function CategoriesContent() {
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
   const getProductImageName = (productId: string) => {
-    // Mapping of product IDs to 26 renamed images
+    // Mapping of all product IDs to product images in kathir product folder
     const imageMap: { [key: string]: string } = {
       '27': '27_Appam_idiyappam_pathiri_podi_1kg_Kathir_kathir.png',
       '75': '75_Barnyard_millet_1kg_Kathir_kathir.png',
@@ -94,9 +96,39 @@ function CategoriesContent() {
       '725': '725_Kathir_Black_Chick_Pea_Kadala_Whole_1_plus_1_kathir.png',
       '726': '726_Kathir_Cow_Pea_Vanparu_1_plus_1_kathir.png',
       '727': '727_KATHIR_JACKFRUIT_CHIPS_200GM_kathir.png',
-      '730': '730_KATHIR_MALABAR_MURUKU_150GM_kathir.png',
-      '731': '731_Kathir_matta_rice_2kg_LOOSE_kathir.png',
-      '740': '740_KATHIR_TAPIOCCA_CHIPS_ROUND_SALT_150GM_kathir.png',
+      '728': 'KATHIR KERALA MIXTURE SPICY 300GM.png',
+      '729': 'kathir madurasava 150gm.png',
+      '730': 'KATHIR RICE MURUKKU 150GM.png',
+      '731': 'ponkathir matta rice.png',
+      '732': 'Kathir Mung Bean (Cheruparu) 1+ 1.png',
+      '733': 'KATHIR MURUKKU TOMATO 150GM.png',
+      '734': 'KATHIR PAKKAVADA 150GM.png',
+      '735': 'Kathir Palakkadan Matta Rice) 1 Kg (Loose).png',
+      '736': 'KATHIR RICE MURUKKU 150GM.png',
+      '737': 'kathir rip.png',
+      '738': 'kathir ripe banana chips.png',
+      '739': 'kathir shakaravati.png',
+      '740': null, // No image available
+      '741': 'kathir toor dhal.png',
+      '742': 'Kathir Urid [Uzhunnu] Parippu (Whole) 1+1.png',
+      '743': 'kathir white raw rice.png',
+      '770': 'kathir kood millet.png',
+      '839': 'kathir little millet.png',
+      '875': 'kathir mappilai samba rice.png',
+      '896': 'ponkathir matta rice.png',
+      '945': 'kathir moong dhall.png',
+      '958': 'kathir mung bean.png',
+      '1078': 'kathir pearl millets.png',
+      '1108': 'kathir pottu kadala.png',
+      '1148': 'kathir puttu podi.png',
+      '1155': 'kathir ragi whole.png',
+      '1173': 'kathir red lentils.png',
+      '1204': 'kathir rice powder.png',
+      '1305': 'silced coconut ponkathir .png',
+      '1416': 'kathir toor dhal.png',
+      '1438': 'kathir urud dhal whole.png',
+      '1482': 'kathir white chick peas.png',
+      '1486': 'kathir white puttu podi.png',
     };
     return imageMap[productId] || null;
   };
@@ -173,9 +205,7 @@ function CategoriesContent() {
                 <h3 className="text-lg font-bold mb-4" style={{ color: '#1F2937' }}>Sort By</h3>
                 <div className="space-y-2">
                   {[
-                    { value: 'featured', label: 'Featured' },
-                    { value: 'lowest', label: 'Price: Low to High' },
-                    { value: 'highest', label: 'Price: High to Low' }
+                    { value: 'featured', label: 'Featured' }
                   ].map(option => (
                     <button
                       key={option.value}
@@ -194,7 +224,7 @@ function CategoriesContent() {
             </div>
           </motion.div>
 
-          {/* Products Grid - 5 Columns */}
+          {/* Products Grid - 4 Columns x 3 Rows */}
           <motion.div
             className="flex-1"
             initial={{ opacity: 0 }}
@@ -256,19 +286,7 @@ function CategoriesContent() {
                       <h3 className="text-xs font-bold text-gray-900 line-clamp-2 mb-1 leading-tight">
                         {product.name}
                       </h3>
-                      <p className="text-xs text-gray-600 mb-2">📦 {product.size}</p>
-
-                      <div
-                        className="p-2 rounded-lg mb-3"
-                        style={{
-                          background: 'linear-gradient(135deg, #F5F9FB 0%, #EDF6FB 100%)',
-                          border: '1px solid #E8F4FB'
-                        }}
-                      >
-                        <div className="text-lg font-black" style={{ color: '#2D7BA8' }}>
-                          £{product.price.toFixed(2)}
-                        </div>
-                      </div>
+                      <p className="text-xs text-gray-600 mb-3">📦 {product.size}</p>
                     </div>
 
                     <div className="flex gap-2 items-center">
@@ -368,6 +386,26 @@ function CategoriesContent() {
           </motion.div>
         </div>
       </div>
+
+      {/* Notification Toast */}
+      {notification && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, x: 20 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          exit={{ opacity: 0, y: 20, x: 20 }}
+          className="fixed bottom-6 right-6 z-50"
+        >
+          <div
+            className="px-6 py-4 rounded-lg text-white font-semibold shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
+              boxShadow: '0 8px 24px rgba(45, 123, 168, 0.3)'
+            }}
+          >
+            ✓ {notification}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

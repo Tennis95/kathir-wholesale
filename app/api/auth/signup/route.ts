@@ -5,12 +5,18 @@ import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('[Auth] Signup request received');
+
+    // Connect to database
+    console.log('[Auth] Connecting to database...');
     await connectDB();
+    console.log('[Auth] Database connected successfully');
 
     const { name, email, password, confirmPassword } = await req.json();
 
     // Validation
     if (!name || !email || !password) {
+      console.warn('[Auth] Missing required fields:', { name: !!name, email: !!email, password: !!password });
       return NextResponse.json(
         { message: 'Please provide all required fields' },
         { status: 400 }
@@ -18,6 +24,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (password !== confirmPassword) {
+      console.warn('[Auth] Password mismatch');
       return NextResponse.json(
         { message: 'Passwords do not match' },
         { status: 400 }
@@ -25,8 +32,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user exists
+    console.log('[Auth] Checking if email already registered:', email);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.warn('[Auth] Email already registered:', email);
       return NextResponse.json(
         { message: 'Email already registered' },
         { status: 400 }
@@ -34,11 +43,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new user
+    console.log('[Auth] Creating new user:', email);
     const user = await User.create({
       name,
       email,
       password,
     });
+    console.log('[Auth] ✅ User created successfully:', user._id);
 
     // Create JWT token
     const token = jwt.sign(
@@ -71,6 +82,28 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (error: any) {
+    console.error('[Auth] ❌ Signup error:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack,
+    });
+
+    // Provide specific error messages
+    if (error.message?.includes('querySrv')) {
+      return NextResponse.json(
+        { message: 'Database connection failed. Please check your internet connection or contact support.' },
+        { status: 503 }
+      );
+    }
+
+    if (error.message?.includes('ENOTFOUND')) {
+      return NextResponse.json(
+        { message: 'Cannot reach MongoDB. Check your network connection.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { message: error.message || 'Error creating user' },
       { status: 500 }
