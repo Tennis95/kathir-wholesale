@@ -1,14 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Manrope, Playfair_Display, Poppins, Inter } from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
+import ClientLayout from "./components/ClientLayout";
 
-const ClientLayout = dynamic(() => import("./components/ClientLayout"), {
-  ssr: false,
-  loading: () => <div />,
-});
-
-export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 const geistSans = Geist({
