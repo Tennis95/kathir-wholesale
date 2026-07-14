@@ -76,9 +76,9 @@ function CategoriesContent() {
 
   const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
-  const getProductImageName = (productId: string) => {
+  const getProductImageName = (productId: string): string | null => {
     // Mapping of all product IDs to product images in kathir product folder
-    const imageMap: { [key: string]: string } = {
+    const imageMap: { [key: string]: string | null } = {
       '27': '27_Appam_idiyappam_pathiri_podi_1kg_Kathir_kathir.png',
       '75': '75_Barnyard_millet_1kg_Kathir_kathir.png',
       '81': '81_Basmati_rice_Extra_long_creamy_sella_1121_5kg_Kathir_kathir.png',
@@ -108,7 +108,7 @@ function CategoriesContent() {
       '737': 'kathir rip.png',
       '738': 'kathir ripe banana chips.png',
       '739': 'kathir shakaravati.png',
-      '740': null, // No image available
+      '740': null,
       '741': 'kathir toor dhal.png',
       '742': 'Kathir Urid [Uzhunnu] Parippu (Whole) 1+1.png',
       '743': 'kathir white raw rice.png',
@@ -130,7 +130,7 @@ function CategoriesContent() {
       '1482': 'kathir white chick peas.png',
       '1486': 'kathir white puttu podi.png',
     };
-    return imageMap[productId] || null;
+    return imageMap[productId] ?? null;
   };
 
   return (

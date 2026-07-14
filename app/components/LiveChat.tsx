@@ -12,7 +12,7 @@ export default function LiveChat() {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on('chat:message', (data) => {
+    socket.on('chat:message', (data: { message: string; sender?: string }) => {
       setMessages(prev => [...prev, {
         id: Math.random().toString(),
         text: data.message,

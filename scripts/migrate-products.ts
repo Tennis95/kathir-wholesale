@@ -43,7 +43,7 @@ async function migrateProducts() {
 
     const result = await productsCollection.insertMany(productsWithTimestamps);
 
-    console.log(`✅ Successfully migrated ${result.insertedIds.length} products to MongoDB`);
+    console.log(`✅ Successfully migrated ${Object.keys(result.insertedIds).length} products to MongoDB`);
     console.log('✨ Migration complete!');
   } catch (error) {
     console.error('❌ Migration failed:', error);
