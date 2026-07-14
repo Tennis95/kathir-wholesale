@@ -10,6 +10,8 @@ import Analytics from "./components/Analytics";
 import MobileOptimized from "./components/MobileOptimized";
 import { AuthProvider } from "./context/AuthContext";
 
+export const dynamic = 'force-dynamic';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
