@@ -1,5 +1,6 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
 export default function BestSellersPage() {
   return (
     <div style={{ background: '#8FD3F4', minHeight: '100vh' }}>
