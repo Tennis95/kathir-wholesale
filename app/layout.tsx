@@ -12,6 +12,9 @@ import { AuthProvider } from "./context/AuthContext";
 
 export const dynamic = 'force-dynamic';
 
+// Suppress hydration warnings for dynamic content
+export const revalidate = 0;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
