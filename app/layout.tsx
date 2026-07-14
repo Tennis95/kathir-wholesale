@@ -1,19 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Manrope, Playfair_Display, Poppins, Inter } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import QuickActionsDock from "./components/QuickActionsDock";
-import PWAInit from "./components/PWAInit";
-import Toast from "./components/Toast";
-import Analytics from "./components/Analytics";
-import MobileOptimized from "./components/MobileOptimized";
-import { AuthProvider } from "./context/AuthContext";
-
-export const dynamic = 'force-dynamic';
-
-// Suppress hydration warnings for dynamic content
-export const revalidate = 0;
+import ClientLayout from "./components/ClientLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -81,16 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${playfair.variable} ${poppins.variable} ${inter.variable} h-full`}>
       <body suppressHydrationWarning className="min-h-screen flex flex-col" style={{ background: '#ffffff' }}>
-        <AuthProvider>
-          <Header />
-          <main className="flex-1 bg-white">{children}</main>
-          <Footer />
-          <QuickActionsDock />
-          <PWAInit />
-          <Toast />
-          <Analytics />
-          <MobileOptimized />
-        </AuthProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
