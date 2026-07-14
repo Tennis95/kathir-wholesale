@@ -5,6 +5,8 @@ import { Product } from '@/types';
 import { motion } from 'motion/react';
 import SearchBar from '../components/SearchBar';
 
+export const dynamic = 'force-dynamic';
+
 function CategoriesContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
