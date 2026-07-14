@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Manrope, Playfair_Display, Poppins, Inter } from "ne
 import "./globals.css";
 import ClientLayout from "./components/ClientLayout";
 
+export const dynamic = 'force-dynamic';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
