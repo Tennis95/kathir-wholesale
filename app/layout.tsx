@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientLayout from "./components/ClientLayout";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
