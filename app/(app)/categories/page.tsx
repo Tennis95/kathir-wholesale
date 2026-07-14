@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { Product } from '@/types';
 import { motion } from 'motion/react';
-import SearchBar from '../components/SearchBar';
+import SearchBar from '../../components/SearchBar';
 
 export const dynamic = 'force-dynamic';
 
