@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
 
+export const dynamic = 'force-dynamic';
+
 export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
