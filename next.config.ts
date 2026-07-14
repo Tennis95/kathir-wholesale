@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Use standalone output for Render deployment
+  // Optimized standalone output for Vercel deployment
   output: 'standalone',
 
   typescript: {
