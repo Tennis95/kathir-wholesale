@@ -15,20 +15,24 @@ interface Order {
 }
 
 export default function AccountPage() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, token, isLoading } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('orders');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (isLoading) return;
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
     }
 
     fetchOrders();
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   const fetchOrders = async () => {
     try {
@@ -45,6 +49,36 @@ export default function AccountPage() {
   const handleLogout = async () => {
     await logout();
     router.push('/');
+  };
+
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/users/${user?._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: editData.name,
+          email: editData.email,
+          phone: editData.phone,
+        }),
+      });
+
+      if (res.ok) {
+        setIsEditing(false);
+        alert('Profile updated successfully');
+      } else {
+        alert('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error updating profile');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!isAuthenticated) {
@@ -169,21 +203,88 @@ export default function AccountPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>Profile Information</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-gray-600">Name</label>
-                <p className="text-lg font-medium">{user?.name}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-600">Email</label>
-                <p className="text-lg font-medium">{user?.email}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-600">Account Type</label>
-                <p className="text-lg font-medium">{user?.role === 'admin' ? 'Administrator' : 'Customer'}</p>
-              </div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold" style={{ color: '#2D7BA8' }}>Profile Information</h2>
+              {!isEditing && (
+                <button
+                  onClick={() => {
+                    setEditData({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+                    setIsEditing(true);
+                  }}
+                  className="text-blue-600 hover:underline text-sm font-bold"
+                >
+                  Edit
+                </button>
+              )}
             </div>
+
+            {!isEditing ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600">Name</label>
+                  <p className="text-lg font-medium">{user?.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Email</label>
+                  <p className="text-lg font-medium">{user?.email}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Phone</label>
+                  <p className="text-lg font-medium">{user?.phone || 'Not provided'}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-600">Account Type</label>
+                  <p className="text-lg font-medium">{user?.role === 'admin' ? 'Administrator' : 'Customer'}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={editData.email}
+                    onChange={(e) => setEditData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 block mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={editData.phone}
+                    onChange={(e) => setEditData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <motion.button
+                    onClick={handleSaveProfile}
+                    disabled={saving}
+                    className="flex-1 px-4 py-2 rounded-lg font-bold text-white transition"
+                    style={{ background: saving ? '#A0C9E5' : '#2D7BA8' }}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </motion.button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 px-4 py-2 rounded-lg font-bold border border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 

@@ -15,7 +15,7 @@ interface CartItem {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isAuthenticated, user, token } = useAuth();
+  const { isAuthenticated, user, token, isLoading } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,6 +33,7 @@ export default function CheckoutPage() {
   });
 
   useEffect(() => {
+    if (isLoading) return;
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
@@ -43,7 +44,7 @@ export default function CheckoutPage() {
       const items = JSON.parse(savedCart);
       setCart(items);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as any;
