@@ -255,8 +255,8 @@ export default function CheckoutPage() {
             ) : (
               <>
                 <div className="space-y-4 mb-6 pb-6 border-b-2" style={{ borderColor: '#E8F4FB' }}>
-                  {cart.map(item => (
-                    <div key={item.id} className="flex justify-between text-sm">
+                  {cart.map((item, index) => (
+                    <div key={`${item.id}-${index}`} className="flex justify-between text-sm">
                       <span className="text-gray-700">{item.name} x{item.quantity}</span>
                       <span className="font-semibold">£{(item.price * item.quantity).toFixed(2)}</span>
                     </div>
