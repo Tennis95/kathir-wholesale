@@ -169,7 +169,7 @@ export default function LoginPage() {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <label className="text-sm font-medium text-gray-700">Password</label>
-                <a href="#" className="text-sm" style={{ color: '#2D7BA8' }}>Forgot password?</a>
+                <a href="/auth/forgot-password" className="text-sm" style={{ color: '#2D7BA8' }}>Forgot password?</a>
               </div>
               <div className="relative flex items-center">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 flex-shrink-0">
@@ -233,6 +233,7 @@ export default function LoginPage() {
           {/* Google Sign In */}
           <button
             type="button"
+            onClick={() => alert('Google login coming soon! For now, use email & password.')}
             className="w-full py-3 border-2 border-gray-300 rounded-lg font-semibold text-gray-700 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2 text-sm"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

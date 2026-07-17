@@ -297,6 +297,7 @@ export default function SignupPage() {
           {/* Google Sign Up */}
           <button
             type="button"
+            onClick={() => alert('Google signup coming soon! For now, use email & password.')}
             className="w-full py-2.5 border border-gray-300 rounded-md font-semibold text-gray-700 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2 text-sm"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
