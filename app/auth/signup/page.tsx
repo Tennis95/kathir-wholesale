@@ -37,7 +37,7 @@ export default function SignupPage() {
 
     try {
       await signup(formData.name, formData.email, formData.password, formData.confirmPassword);
-      router.push('/');
+      router.push('/account');
     } catch (err: any) {
       setError(err.message || 'Signup failed. Please try again.');
     } finally {

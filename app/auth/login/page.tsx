@@ -29,7 +29,7 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      router.push('/');
+      router.push('/account');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
     } finally {
