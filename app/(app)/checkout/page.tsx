@@ -15,7 +15,7 @@ interface CartItem {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, token } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
     try {
       const res = await fetch('/api/user/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           items: cart,
           subtotal,

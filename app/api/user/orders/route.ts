@@ -5,7 +5,11 @@ import jwt from 'jsonwebtoken';
 
 async function verifyUser(req: NextRequest) {
   try {
-    const token = req.cookies.get('authToken')?.value;
+    // Check Authorization header first, then cookies
+    let token = req.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
+      token = req.cookies.get('authToken')?.value;
+    }
     if (!token) return { valid: false, userId: null };
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');

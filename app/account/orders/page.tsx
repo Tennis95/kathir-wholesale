@@ -19,7 +19,7 @@ interface Order {
 }
 
 export default function OrdersHistoryPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,12 +30,19 @@ export default function OrdersHistoryPage() {
       return;
     }
 
-    fetchOrders();
-  }, [isAuthenticated, router]);
+    if (token) {
+      fetchOrders();
+    }
+  }, [isAuthenticated, token, router]);
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/user/orders');
+      const res = await fetch('/api/user/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await res.json();
       setOrders(data.orders || []);
     } catch (error) {
