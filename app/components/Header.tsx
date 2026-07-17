@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { animate } from 'motion';
+import { useAuth } from '@/app/context/AuthContext';
 import PillNav from './PillNav';
 import CartBadge from './CartBadge';
 
@@ -15,9 +16,12 @@ const NAV_LINKS = [
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated, logout } = useAuth();
   const desktopCartRef = useRef<HTMLAnchorElement>(null);
   const mobileCartRef = useRef<HTMLAnchorElement>(null);
-  const accountRef = useRef<HTMLButtonElement>(null);
+  const desktopAccountRef = useRef<HTMLDivElement>(null);
+  const mobileAccountRef = useRef<HTMLDivElement>(null);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
 
   useEffect(() => {
     const bump = (iconEl: HTMLElement | null) => {
@@ -38,8 +42,38 @@ export default function Header() {
     return () => window.removeEventListener('cart-fly-landed', handleLanded);
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const isDesktop = desktopAccountRef.current && desktopAccountRef.current.contains(e.target as Node);
+      const isMobile = mobileAccountRef.current && mobileAccountRef.current.contains(e.target as Node);
+      if (!isDesktop && !isMobile) {
+        setShowAccountMenu(false);
+      }
+    };
+
+    if (showAccountMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showAccountMenu]);
+
   const handleAccountClick = () => {
-    router.push('/auth/login');
+    if (isAuthenticated) {
+      setShowAccountMenu(!showAccountMenu);
+    } else {
+      router.push('/auth/login');
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setShowAccountMenu(false);
+    router.push('/');
+  };
+
+  const handleOrders = () => {
+    setShowAccountMenu(false);
+    router.push('/account/orders');
   };
 
   return (
@@ -84,31 +118,86 @@ export default function Header() {
             </span>
           </a>
 
-          <button
-            ref={accountRef}
-            onClick={handleAccountClick}
-            className="flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-300 hover:scale-110"
-            style={{
-              background: '#2D7BA8',
-              boxShadow: '0 2px 8px rgba(45, 123, 168, 0.15)',
-            }}
-            aria-label="Account"
-            title="Account"
-          >
-            <span style={{ fontSize: '22px' }}>👤</span>
-          </button>
+          {/* Account Button with Dropdown */}
+          <div className="relative" ref={desktopAccountRef}>
+            <button
+              ref={accountRef}
+              onClick={handleAccountClick}
+              className="flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-300 hover:scale-110"
+              style={{
+                background: '#2D7BA8',
+                boxShadow: '0 2px 8px rgba(45, 123, 168, 0.15)',
+              }}
+              aria-label="Account"
+              title="Account"
+            >
+              <span style={{ fontSize: '22px' }}>👤</span>
+            </button>
+
+            {/* Dropdown Menu */}
+            {isAuthenticated && showAccountMenu && (
+              <div
+                className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+                style={{
+                  animation: 'fadeIn 0.2s ease-out',
+                }}
+              >
+                <a
+                  href="/account/orders"
+                  onClick={handleOrders}
+                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
+                >
+                  My Orders
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 last:rounded-b-lg"
+                  style={{ color: '#2D7BA8' }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile: Cart + Account icons */}
         <div className="md:hidden flex items-center gap-2">
-          <button
-            onClick={handleAccountClick}
-            className="flex items-center justify-center w-10 h-10 rounded-lg transition"
-            style={{ background: '#2D7BA8' }}
-            aria-label="Account"
-          >
-            <span style={{ fontSize: '18px' }}>👤</span>
-          </button>
+          <div className="relative" ref={mobileAccountRef}>
+            <button
+              onClick={handleAccountClick}
+              className="flex items-center justify-center w-10 h-10 rounded-lg transition"
+              style={{ background: '#2D7BA8' }}
+              aria-label="Account"
+            >
+              <span style={{ fontSize: '18px' }}>👤</span>
+            </button>
+
+            {/* Mobile Dropdown Menu */}
+            {isAuthenticated && showAccountMenu && (
+              <div
+                className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+                style={{
+                  animation: 'fadeIn 0.2s ease-out',
+                }}
+              >
+                <a
+                  href="/account/orders"
+                  onClick={handleOrders}
+                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
+                >
+                  My Orders
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 last:rounded-b-lg"
+                  style={{ color: '#2D7BA8' }}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
 
           <a
             ref={mobileCartRef}
