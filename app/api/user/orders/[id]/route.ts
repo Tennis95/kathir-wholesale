@@ -19,15 +19,16 @@ async function verifyUser(req: NextRequest) {
 }
 
 // GET specific order
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const auth = await verifyUser(req);
     if (!auth.valid) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-    const order = await Order.findById(params.id);
+    const order = await Order.findById(id);
 
     if (!order) {
       return NextResponse.json({ message: 'Order not found' }, { status: 404 });
@@ -48,15 +49,16 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PATCH update order (shipping address)
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const auth = await verifyUser(req);
     if (!auth.valid) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-    const order = await Order.findById(params.id);
+    const order = await Order.findById(id);
 
     if (!order) {
       return NextResponse.json({ message: 'Order not found' }, { status: 404 });
