@@ -141,13 +141,12 @@ export default function Header() {
                   animation: 'fadeIn 0.2s ease-out',
                 }}
               >
-                <a
-                  href="/account/orders"
+                <button
                   onClick={handleOrders}
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
                 >
                   My Orders
-                </a>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 last:rounded-b-lg"
@@ -180,13 +179,12 @@ export default function Header() {
                   animation: 'fadeIn 0.2s ease-out',
                 }}
               >
-                <a
-                  href="/account/orders"
+                <button
                   onClick={handleOrders}
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 first:rounded-t-lg border-b border-gray-100"
                 >
                   My Orders
-                </a>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 last:rounded-b-lg"
