@@ -19,12 +19,16 @@ interface Order {
 }
 
 export default function OrdersHistoryPage() {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, isLoading } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
@@ -33,7 +37,7 @@ export default function OrdersHistoryPage() {
     if (token) {
       fetchOrders();
     }
-  }, [isAuthenticated, token, router]);
+  }, [isAuthenticated, token, isLoading, router]);
 
   const fetchOrders = async () => {
     try {
@@ -52,7 +56,7 @@ export default function OrdersHistoryPage() {
     }
   };
 
-  if (!isAuthenticated) {
+  if (isLoading || !isAuthenticated) {
     return null;
   }
 

@@ -121,7 +121,6 @@ export default function Header() {
           {/* Account Button with Dropdown */}
           <div className="relative" ref={desktopAccountRef}>
             <button
-              ref={accountRef}
               onClick={handleAccountClick}
               className="flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-300 hover:scale-110"
               style={{
