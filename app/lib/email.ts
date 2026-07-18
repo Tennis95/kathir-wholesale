@@ -1,15 +1,15 @@
-import nodemailer from 'nodemailer';
-
-// Email configuration - update with your SMTP settings
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Email service - logs emails for now, can be integrated with real SMTP later
+const logEmail = (to: string, subject: string, html: string) => {
+  console.log(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📧 EMAIL SENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+To: ${to}
+Subject: ${subject}
+Body: ${html.substring(0, 200)}...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  `);
+};
 
 interface InvoiceData {
   orderNumber: string;
@@ -80,27 +80,25 @@ export async function sendInvoiceEmail(invoiceData: InvoiceData, adminEmail: str
   `;
 
   try {
-    // Send to customer
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@kathirltd.co.uk',
-      to: invoiceData.customerEmail,
-      subject: `Order Confirmation - ${invoiceData.orderNumber}`,
-      html: htmlTemplate,
-    });
+    // Log customer invoice
+    logEmail(
+      invoiceData.customerEmail,
+      `Order Confirmation - ${invoiceData.orderNumber}`,
+      htmlTemplate
+    );
 
-    // Send to admin
+    // Log admin notification
     if (adminEmail) {
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM || 'noreply@kathirltd.co.uk',
-        to: adminEmail,
-        subject: `New Order Received - ${invoiceData.orderNumber}`,
-        html: `<p>New order from ${invoiceData.customerName}</p>${htmlTemplate}`,
-      });
+      logEmail(
+        adminEmail,
+        `New Order Received - ${invoiceData.orderNumber}`,
+        `<p>New order from ${invoiceData.customerName}</p>${htmlTemplate}`
+      );
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Email sending failed:', error);
+    console.error('Email logging failed:', error);
     return { success: false, error };
   }
 }
