@@ -7,9 +7,10 @@ import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 
 interface OrderItem {
-  productName: string;
+  name?: string;
+  productName?: string;
   quantity: number;
-  price: number;
+  price?: number;
 }
 
 interface Address {
