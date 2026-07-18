@@ -47,7 +47,12 @@ export default function AccountPage() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/user/orders');
+      const res = await fetch('/api/user/orders', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await res.json();
       setOrders(data.orders || []);
     } catch (error) {
