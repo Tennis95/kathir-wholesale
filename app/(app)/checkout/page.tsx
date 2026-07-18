@@ -18,6 +18,8 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingQty, setEditingQty] = useState(1);
   const [formData, setFormData] = useState({
     shippingStreet: '123 Main Street',
     shippingCity: 'London',
@@ -52,6 +54,22 @@ export default function CheckoutPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
+  };
+
+  const handleDeleteItem = (itemId: string) => {
+    const updatedCart = cart.filter(item => item.id !== itemId);
+    setCart(updatedCart);
+    localStorage.setItem('kathir-cart', JSON.stringify(updatedCart));
+  };
+
+  const handleEditQuantity = (itemId: string, newQty: number) => {
+    if (newQty < 1) return;
+    const updatedCart = cart.map(item =>
+      item.id === itemId ? { ...item, quantity: newQty } : item
+    );
+    setCart(updatedCart);
+    localStorage.setItem('kathir-cart', JSON.stringify(updatedCart));
+    setEditingId(null);
   };
 
 
@@ -256,10 +274,55 @@ export default function CheckoutPage() {
             ) : (
               <>
                 <div className="space-y-3">
-                  {cart.map((item, index) => (
-                    <div key={`${item.id}-${index}`} className="flex justify-between text-sm p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-700 font-medium">{item.name}</span>
-                      <span className="text-gray-600">Qty: {item.quantity}</span>
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex-1">
+                        <p className="text-gray-700 font-medium">{item.name}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {editingId === item.id ? (
+                          <>
+                            <input
+                              type="number"
+                              min="1"
+                              value={editingQty}
+                              onChange={(e) => setEditingQty(parseInt(e.target.value) || 1)}
+                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                            />
+                            <button
+                              onClick={() => handleEditQuantity(item.id, editingQty)}
+                              className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => setEditingId(null)}
+                              className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-gray-600 font-medium min-w-fit">Qty: {item.quantity}</span>
+                            <button
+                              onClick={() => {
+                                setEditingId(item.id);
+                                setEditingQty(item.quantity);
+                              }}
+                              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
