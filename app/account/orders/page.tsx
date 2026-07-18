@@ -61,16 +61,12 @@ export default function OrdersHistoryPage() {
     }
   };
 
-  if (!isMounted || isLoading) {
+  if (!isMounted || isLoading || !isAuthenticated) {
     return (
       <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center py-12 px-4">
         <p className="text-gray-600">Loading your orders...</p>
       </div>
     );
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return (
