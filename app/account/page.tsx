@@ -35,7 +35,9 @@ export default function AccountPage() {
 
     if (!isAuthenticated && !redirectedRef.current) {
       redirectedRef.current = true;
-      router.push('/auth/login');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
       return;
     }
 
@@ -43,7 +45,7 @@ export default function AccountPage() {
       setEditData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
       fetchOrders();
     }
-  }, [isAuthenticated, isLoading, router, user, isMounted]);
+  }, [isAuthenticated, isLoading, user, isMounted]);
 
   const fetchOrders = async () => {
     try {

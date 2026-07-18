@@ -37,14 +37,16 @@ export default function OrdersHistoryPage() {
 
     if (!isAuthenticated && !redirectedRef.current) {
       redirectedRef.current = true;
-      router.push('/auth/login');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
       return;
     }
 
     if (isAuthenticated && token) {
       fetchOrders();
     }
-  }, [isAuthenticated, token, isLoading, router, isMounted]);
+  }, [isAuthenticated, token, isLoading, isMounted]);
 
   const fetchOrders = async () => {
     try {
