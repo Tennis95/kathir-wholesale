@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 import Header from "./Header";
 import Footer from "./Footer";
 import QuickActionsDock from "./QuickActionsDock";
@@ -12,14 +13,16 @@ import MobileOptimized from "./MobileOptimized";
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <Header />
-      <main className="flex-1 bg-white">{children}</main>
-      <Footer />
-      <QuickActionsDock />
-      <PWAInit />
-      <Toast />
-      <Analytics />
-      <MobileOptimized />
+      <CartProvider>
+        <Header />
+        <main className="flex-1 bg-white">{children}</main>
+        <Footer />
+        <QuickActionsDock />
+        <PWAInit />
+        <Toast />
+        <Analytics />
+        <MobileOptimized />
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useCart } from '@/context/CartContext';
 
 export interface ToastMessage {
   id: string;
@@ -26,6 +27,13 @@ export function showToast(message: string, type: 'success' | 'error' | 'info' | 
 
 export default function Toast() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const { notification } = useCart();
+
+  useEffect(() => {
+    if (notification) {
+      showToast(notification, 'success', 3000);
+    }
+  }, [notification]);
 
   useEffect(() => {
     toastListener = (message: ToastMessage) => {
