@@ -155,12 +155,6 @@ export default function OrdersHistoryPage() {
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-gray-600">Total</p>
-                    <p className="text-2xl font-bold" style={{ color: '#2D7BA8' }}>
-                      £{order.total.toFixed(2)}
-                    </p>
-                  </div>
                   {order.trackingNumber && (
                     <div className="text-right">
                       <p className="text-sm text-gray-600">Tracking</p>

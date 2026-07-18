@@ -180,7 +180,6 @@ export default function AccountPage() {
                   <thead style={{ background: '#F0F9FE', borderBottom: '2px solid #E8F4FB' }}>
                     <tr>
                       <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Order #</th>
-                      <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Amount</th>
                       <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Status</th>
                       <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Date</th>
                       <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Action</th>
@@ -190,11 +189,10 @@ export default function AccountPage() {
                     {orders.map((order) => (
                       <tr key={order._id} style={{ borderBottom: '1px solid #E8F4FB' }}>
                         <td className="px-6 py-4 font-bold" style={{ color: '#2D7BA8' }}>{order.orderNumber}</td>
-                        <td className="px-6 py-4 font-bold">£{order.total.toFixed(2)}</td>
                         <td className="px-6 py-4">
                           <span className="px-3 py-1 rounded-full text-xs font-bold"
                             style={{
-                              background: order.status === 'delivered' ? '#D1FAE5' : 
+                              background: order.status === 'delivered' ? '#D1FAE5' :
                                          order.status === 'shipped' ? '#DBEAFE' : '#FEF3C7',
                               color: order.status === 'delivered' ? '#065F46' :
                                      order.status === 'shipped' ? '#1E40AF' : '#92400E'
