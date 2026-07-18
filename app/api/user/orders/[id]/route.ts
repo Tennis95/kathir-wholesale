@@ -97,3 +97,44 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     );
   }
 }
+
+// DELETE order
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const auth = await verifyUser(req);
+    if (!auth.valid) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return NextResponse.json({ message: 'Order not found' }, { status: 404 });
+    }
+
+    if (order.userId.toString() !== auth.userId) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+    }
+
+    if (order.status !== 'pending') {
+      return NextResponse.json(
+        { message: 'Can only delete pending orders' },
+        { status: 400 }
+      );
+    }
+
+    await Order.findByIdAndDelete(id);
+
+    return NextResponse.json(
+      { message: 'Order deleted successfully' },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.message || 'Error deleting order' },
+      { status: 500 }
+    );
+  }
+}

@@ -18,6 +18,7 @@ export default function CheckoutPage() {
   const { isAuthenticated, user, token, isLoading } = useAuth();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     shippingStreet: '123 Main Street',
     shippingCity: 'London',
@@ -62,6 +63,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     try {
       const res = await fetch('/api/user/orders', {
@@ -103,11 +105,12 @@ export default function CheckoutPage() {
         localStorage.removeItem('kathir-cart');
         router.push(`/account/orders`);
       } else {
-        alert('Failed to place order');
+        const errorData = await res.json();
+        setError(errorData.message || 'Failed to place order');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error);
-      alert('Error during checkout');
+      setError(error.message || 'Error during checkout');
     } finally {
       setLoading(false);
     }
@@ -137,6 +140,12 @@ export default function CheckoutPage() {
               <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>
                 Shipping Address
               </h2>
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
 
               <div className="space-y-6">
                 {/* Street */}

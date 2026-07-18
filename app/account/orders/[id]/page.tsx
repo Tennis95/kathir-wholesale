@@ -48,6 +48,7 @@ export default function OrderDetailsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedAddress, setEditedAddress] = useState<Address | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -107,6 +108,34 @@ export default function OrderDetailsPage() {
     }
   };
 
+  const handleDeleteOrder = async () => {
+    if (!confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/user/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (res.ok) {
+        router.push('/account/orders');
+      } else {
+        alert('Failed to delete order');
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      alert('Error deleting order');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (isLoading || loading) return null;
   if (!isAuthenticated) return null;
   if (!order) {
@@ -134,12 +163,25 @@ export default function OrderDetailsPage() {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <button
-            onClick={() => router.back()}
-            className="text-blue-600 hover:underline mb-4 inline-block"
-          >
-            ← Back to Orders
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => router.back()}
+              className="text-blue-600 hover:underline"
+            >
+              ← Back to Orders
+            </button>
+            {order.status === 'pending' && (
+              <motion.button
+                onClick={handleDeleteOrder}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg font-bold text-white transition"
+                style={{ background: deleting ? '#A0C9E5' : '#DC2626' }}
+                whileHover={{ scale: 1.02 }}
+              >
+                {deleting ? 'Deleting...' : 'Delete Order'}
+              </motion.button>
+            )}
+          </div>
           <h1 className="text-4xl font-bold" style={{ color: '#1F2937' }}>
             Order {order.orderNumber}
           </h1>
