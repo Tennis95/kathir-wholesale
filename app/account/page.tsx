@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
 
 interface Order {
@@ -17,6 +17,7 @@ interface Order {
 export default function AccountPage() {
   const { user, isAuthenticated, logout, token, isLoading } = useAuth();
   const router = useRouter();
+  const redirectedRef = useRef(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('orders');
@@ -31,15 +32,17 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (!isMounted || isLoading) return;
-    if (!isAuthenticated) {
+
+    if (!isAuthenticated && !redirectedRef.current) {
+      redirectedRef.current = true;
       router.push('/auth/login');
       return;
     }
 
-    if (user) {
+    if (isAuthenticated && user) {
       setEditData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
+      fetchOrders();
     }
-    fetchOrders();
   }, [isAuthenticated, isLoading, router, user, isMounted]);
 
   const fetchOrders = async () => {
