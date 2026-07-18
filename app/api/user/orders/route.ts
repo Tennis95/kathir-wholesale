@@ -52,11 +52,11 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     const body = await req.json();
-    const { items, subtotal, tax, shipping, total, shippingAddress, billingAddress } = body;
+    const { items, shippingAddress, billingAddress } = body;
 
-    if (!items || !total) {
+    if (!items || items.length === 0) {
       return NextResponse.json(
-        { message: 'Missing required fields' },
+        { message: 'Cart is empty' },
         { status: 400 }
       );
     }
@@ -67,10 +67,6 @@ export async function POST(req: NextRequest) {
       orderNumber,
       userId: auth.userId,
       items,
-      subtotal,
-      tax: tax || 0,
-      shipping: shipping || 0,
-      total,
       shippingAddress,
       billingAddress,
       status: 'pending',

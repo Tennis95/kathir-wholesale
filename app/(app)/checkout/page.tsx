@@ -9,7 +9,6 @@ import { motion } from 'motion/react';
 interface CartItem {
   id: string;
   name: string;
-  price: number;
   quantity: number;
 }
 
@@ -55,10 +54,6 @@ export default function CheckoutPage() {
     }));
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.2; // 20% VAT
-  const shipping = subtotal > 50 ? 0 : 5.99;
-  const total = subtotal + tax + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,10 +66,6 @@ export default function CheckoutPage() {
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           items: cart,
-          subtotal,
-          tax,
-          shipping,
-          total,
           shippingAddress: {
             street: formData.shippingStreet,
             city: formData.shippingCity,
@@ -243,7 +234,7 @@ export default function CheckoutPage() {
                     background: loading || cart.length === 0 ? '#A0C9E5' : 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
                   }}
                 >
-                  {loading ? 'Processing...' : `Place Order - £${total.toFixed(2)}`}
+                  {loading ? 'Processing...' : 'Place Order'}
                 </button>
               </div>
             </motion.form>
@@ -264,37 +255,14 @@ export default function CheckoutPage() {
               <p className="text-gray-500 mb-6">Your cart is empty</p>
             ) : (
               <>
-                <div className="space-y-4 mb-6 pb-6 border-b-2" style={{ borderColor: '#E8F4FB' }}>
+                <div className="space-y-3">
                   {cart.map((item, index) => (
-                    <div key={`${item.id}-${index}`} className="flex justify-between text-sm">
-                      <span className="text-gray-700">{item.name} x{item.quantity}</span>
-                      <span className="font-semibold">£{(item.price * item.quantity).toFixed(2)}</span>
+                    <div key={`${item.id}-${index}`} className="flex justify-between text-sm p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-700 font-medium">{item.name}</span>
+                      <span className="text-gray-600">Qty: {item.quantity}</span>
                     </div>
                   ))}
                 </div>
-
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between text-gray-700">
-                    <span>Subtotal:</span>
-                    <span>£{subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-700">
-                    <span>VAT (20%):</span>
-                    <span>£{tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-700">
-                    <span>Shipping:</span>
-                    <span>{shipping === 0 ? 'FREE' : `£${shipping.toFixed(2)}`}</span>
-                  </div>
-                  <div className="flex justify-between text-xl font-bold pt-3 border-t-2" style={{ borderColor: '#E8F4FB', color: '#2D7BA8' }}>
-                    <span>Total:</span>
-                    <span>£{total.toFixed(2)}</span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-400 mt-4">
-                  💡 Form is pre-filled with test data. Click "Place Order" to proceed.
-                </p>
               </>
             )}
           </motion.div>

@@ -18,28 +18,15 @@ const orderSchema = new mongoose.Schema(
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Product',
         },
-        productName: String,
+        name: String,
         quantity: Number,
-        price: Number,
         size: String,
       },
     ],
-    subtotal: {
-      type: Number,
-      required: true,
-    },
-    tax: {
-      type: Number,
-      default: 0,
-    },
-    shipping: {
-      type: Number,
-      default: 0,
-    },
-    total: {
-      type: Number,
-      required: true,
-    },
+    subtotal: Number,
+    tax: Number,
+    shipping: Number,
+    total: Number,
     status: {
       type: String,
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],

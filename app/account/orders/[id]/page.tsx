@@ -247,39 +247,15 @@ export default function OrderDetailsPage() {
               Order Items
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {order.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center pb-4 border-b border-gray-200">
-                  <div className="flex-1">
-                    <p className="font-bold text-lg">{item.productName}</p>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                <div key={idx} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-bold text-lg">{item.name || item.productName}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold">£{(item.price * item.quantity).toFixed(2)}</p>
-                    <p className="text-sm text-gray-600">£{item.price.toFixed(2)} each</p>
-                  </div>
+                  <p className="text-gray-600 font-medium">Qty: {item.quantity}</p>
                 </div>
               ))}
-            </div>
-
-            {/* Order Summary */}
-            <div className="mt-8 pt-8 border-t-2 border-gray-200 space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-700">Subtotal:</span>
-                <span className="font-bold">£{order.subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">VAT (20%):</span>
-                <span className="font-bold">£{order.tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-700">Shipping:</span>
-                <span className="font-bold">{order.shipping === 0 ? 'FREE' : `£${order.shipping.toFixed(2)}`}</span>
-              </div>
-              <div className="flex justify-between text-xl font-bold pt-4 border-t border-gray-200" style={{ color: '#2D7BA8' }}>
-                <span>Total:</span>
-                <span>£{order.total.toFixed(2)}</span>
-              </div>
             </div>
           </motion.div>
 
