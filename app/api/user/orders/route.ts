@@ -1,7 +1,9 @@
 import { connectDB } from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
+import User from '@/lib/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { sendInvoiceEmail } from '@/lib/email';
 
 async function verifyUser(req: NextRequest) {
   try {
@@ -72,6 +74,25 @@ export async function POST(req: NextRequest) {
       status: 'pending',
       paymentStatus: 'pending',
     });
+
+    // Fetch user details for email
+    const user = await User.findById(auth.userId);
+    const adminUser = await User.findOne({ role: 'admin' });
+
+    // Send invoice emails
+    if (user) {
+      await sendInvoiceEmail(
+        {
+          orderNumber,
+          customerName: user.name,
+          customerEmail: user.email,
+          items,
+          shippingAddress,
+          createdAt: order.createdAt,
+        },
+        adminUser?.email || 'admin@kathirltd.co.uk'
+      );
+    }
 
     return NextResponse.json(
       { message: 'Order created successfully', order },
