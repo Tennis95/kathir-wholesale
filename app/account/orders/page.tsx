@@ -23,9 +23,14 @@ export default function OrdersHistoryPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (isLoading) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted || isLoading) {
       return;
     }
 
@@ -37,7 +42,7 @@ export default function OrdersHistoryPage() {
     if (token) {
       fetchOrders();
     }
-  }, [isAuthenticated, token, isLoading, router]);
+  }, [isAuthenticated, token, isLoading, router, isMounted]);
 
   const fetchOrders = async () => {
     try {
@@ -56,7 +61,7 @@ export default function OrdersHistoryPage() {
     }
   };
 
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center py-12 px-4">
         <p className="text-gray-600">Loading your orders...</p>

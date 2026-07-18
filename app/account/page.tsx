@@ -23,9 +23,14 @@ export default function AccountPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ name: '', email: '', phone: '' });
   const [saving, setSaving] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted || isLoading) return;
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
@@ -35,7 +40,7 @@ export default function AccountPage() {
       setEditData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
     }
     fetchOrders();
-  }, [isAuthenticated, isLoading, router, user]);
+  }, [isAuthenticated, isLoading, router, user, isMounted]);
 
   const fetchOrders = async () => {
     try {
@@ -84,7 +89,7 @@ export default function AccountPage() {
     }
   };
 
-  if (isLoading || loading) {
+  if (!isMounted || isLoading || loading) {
     return (
       <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
