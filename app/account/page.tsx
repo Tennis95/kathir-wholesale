@@ -21,7 +21,7 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('orders');
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({ name: user?.name || '', email: user?.email || '', phone: user?.phone || '' });
+  const [editData, setEditData] = useState({ name: '', email: '', phone: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -31,8 +31,11 @@ export default function AccountPage() {
       return;
     }
 
+    if (user) {
+      setEditData({ name: user.name || '', email: user.email || '', phone: user.phone || '' });
+    }
     fetchOrders();
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, user]);
 
   const fetchOrders = async () => {
     try {
@@ -80,6 +83,14 @@ export default function AccountPage() {
       setSaving(false);
     }
   };
+
+  if (isLoading || loading) {
+    return (
+      <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return null;
