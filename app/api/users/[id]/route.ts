@@ -74,8 +74,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     await user.save();
 
+    const userObj = user.toObject();
+    delete (userObj as any).password;
+
     return NextResponse.json(
-      { message: 'User updated successfully', user: user.toObject({ transform: (doc, ret) => { delete ret.password; return ret; } }) },
+      { message: 'User updated successfully', user: userObj },
       { status: 200 }
     );
   } catch (error: any) {
