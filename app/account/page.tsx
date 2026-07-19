@@ -9,7 +9,7 @@ import { motion } from 'motion/react';
 interface Order {
   _id: string;
   orderNumber: string;
-  total: number;
+  total?: number;
   status: string;
   createdAt: string;
 }

@@ -10,7 +10,7 @@ interface Order {
   _id: string;
   orderNumber: string;
   items: any[];
-  total: number;
+  total?: number;
   status: string;
   paymentStatus: string;
   estimatedDelivery: string;
