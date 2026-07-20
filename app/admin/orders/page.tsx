@@ -3,7 +3,8 @@
 export const dynamic = 'force-dynamic';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useNotification } from '@/context/NotificationContext';
+import { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
 
 interface Order {
@@ -18,10 +19,12 @@ interface Order {
 
 export default function AdminOrders() {
   const { user, isAuthenticated } = useAuth();
+  const { addNotification } = useNotification();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const notifiedOrdersRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'admin') {
@@ -30,13 +33,41 @@ export default function AdminOrders() {
     }
 
     fetchOrders();
+
+    // Poll for new orders every 10 seconds
+    const pollInterval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+
+    return () => clearInterval(pollInterval);
   }, [isAuthenticated, user?.role, router]);
 
   const fetchOrders = async () => {
     try {
       const res = await fetch('/api/admin/orders');
       const data = await res.json();
-      setOrders(data.orders || []);
+      const newOrders = data.orders || [];
+
+      // Check for new pending orders and show notifications
+      newOrders.forEach((order: Order) => {
+        if (order.status === 'pending' && !notifiedOrdersRef.current.has(order._id)) {
+          notifiedOrdersRef.current.add(order._id);
+          addNotification({
+            type: 'order',
+            title: 'New Order Received',
+            message: `Order from ${order.userId.name}`,
+            duration: 8000,
+            orderDetails: {
+              orderNumber: order.orderNumber,
+              customerName: order.userId.name,
+              itemCount: 0, // Will be updated from order data if available
+              createdAt: order.createdAt,
+            },
+          });
+        }
+      });
+
+      setOrders(newOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
