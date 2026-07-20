@@ -198,8 +198,8 @@ function InvoiceContent() {
                     <td className="px-4 py-3 font-semibold text-gray-900">{item.product.name}</td>
                     <td className="px-4 py-3 text-center text-gray-600">{item.product.category}</td>
                     <td className="px-4 py-3 text-center text-gray-600">{item.quantity}</td>
-                    <td className="px-4 py-3 text-right text-gray-600">£{item.price.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right font-bold" style={{ color: '#A0522D' }}>£{lineTotal.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-gray-600">£{(item.price || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right font-bold" style={{ color: '#A0522D' }}>£{(lineTotal || 0).toFixed(2)}</td>
                   </tr>
                 );
               })}
@@ -223,18 +223,18 @@ function InvoiceContent() {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Sub Total</span>
-              <span className="font-semibold">£{order.subtotal.toFixed(2)}</span>
+              <span className="font-semibold">£{(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">VAT (20%)</span>
-              <span className="font-semibold">£{order.vat.toFixed(2)}</span>
+              <span className="font-semibold">£{(order.vat || 0).toFixed(2)}</span>
             </div>
             <div
               className="flex justify-between text-lg font-bold px-4 py-3 rounded"
               style={{ background: '#8FD3F4', color: 'white' }}
             >
               <span>Grand Total</span>
-              <span>£{order.totalAmount.toFixed(2)}</span>
+              <span>£{(order.totalAmount || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>

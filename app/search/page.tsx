@@ -82,7 +82,7 @@ function SearchContent() {
           </span>
         ))}
       </div>
-      <span className="text-xs text-gray-600">({rating.toFixed(1)})</span>
+      <span className="text-xs text-gray-600">({(rating || 0).toFixed(1)})</span>
     </div>
   );
 
@@ -274,7 +274,7 @@ function SearchContent() {
                         }}
                       >
                         <div className="text-3xl font-black" style={{ color: '#2D7BA8', letterSpacing: '-0.5px' }}>
-                          £{product.price.toFixed(2)}
+                          £{(product.price || 0).toFixed(2)}
                         </div>
                         {discount > 0 && (
                           <div className="text-xs text-gray-600 mt-2">

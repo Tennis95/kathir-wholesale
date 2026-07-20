@@ -102,7 +102,7 @@ export default function ProductComparison({
                       >
                         {feature.key === 'price' && (
                           <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                            £{product.price.toFixed(2)}
+                            £{(product.price || 0).toFixed(2)}
                           </span>
                         )}
                         {feature.key === 'size' && <span>{product.size}</span>}

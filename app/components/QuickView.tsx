@@ -87,10 +87,10 @@ export default function QuickView({
                 {/* Pricing */}
                 <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-gray-800 dark:to-gray-700 p-4 rounded-lg mb-6">
                   <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                    £{product.price.toFixed(2)}
+                    £{(product.price || 0).toFixed(2)}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <span className="line-through">£{oldPrice.toFixed(2)}</span>
+                    <span className="line-through">£{(oldPrice || 0).toFixed(2)}</span>
                     <span className="text-red-600 dark:text-red-400 font-bold ml-2">
                       Save {discount}%
                     </span>

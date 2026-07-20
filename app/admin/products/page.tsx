@@ -150,7 +150,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">{product.name}</td>
                       <td className="px-6 py-4 text-sm">{product.category}</td>
-                      <td className="px-6 py-4 text-sm font-bold">£{product.price.toFixed(2)}</td>
+                      <td className="px-6 py-4 text-sm font-bold">£{(product.price || 0).toFixed(2)}</td>
                       <td className="px-6 py-4 text-sm">{product.stock} units</td>
                       <td className="px-6 py-4 text-sm">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
