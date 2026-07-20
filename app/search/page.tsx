@@ -278,7 +278,7 @@ function SearchContent() {
                         </div>
                         {discount > 0 && (
                           <div className="text-xs text-gray-600 mt-2">
-                            <span className="line-through">£{oldPrice.toFixed(2)}</span>
+                            <span className="line-through">£{(oldPrice || 0).toFixed(2)}</span>
                             <span className="text-red-600 font-bold ml-2">Save {discount}%</span>
                           </div>
                         )}

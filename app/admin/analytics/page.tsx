@@ -231,7 +231,7 @@ export default function AnalyticsDashboard() {
                   <div className="flex justify-between mb-2">
                     <span className="font-medium">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
                     <span className="font-bold" style={{ color: '#2D7BA8' }}>
-                      £{revenue.toFixed(2)}
+                      £{(revenue || 0).toFixed(2)}
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3" style={{ overflow: 'hidden' }}>
@@ -267,7 +267,7 @@ export default function AnalyticsDashboard() {
                 <div key={category} className="p-4 rounded-lg" style={{ background: '#F0F9FE' }}>
                   <p className="font-medium text-gray-700 mb-2">{category}</p>
                   <p className="text-2xl font-bold" style={{ color: '#2D7BA8' }}>
-                    £{revenue.toFixed(2)}
+                    £{(revenue || 0).toFixed(2)}
                   </p>
                 </div>
               ))}
