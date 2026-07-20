@@ -183,7 +183,7 @@ function CategoriesContent() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
+            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
               {paginatedProducts.map((product, idx) => (
                 <motion.div
                   key={product.id}
