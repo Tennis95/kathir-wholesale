@@ -221,26 +221,26 @@ function CategoriesContent() {
                     e.currentTarget.style.boxShadow = '0 2px 12px rgba(79, 169, 217, 0.08)';
                   }}
                 >
-                  {/* Smaller Image Area */}
-                  <div className="h-24 bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 flex items-center justify-center relative overflow-hidden">
+                  {/* Product Image Area */}
+                  <div className="h-32 bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 flex items-center justify-center relative overflow-hidden p-2">
                     {getProductImageName(product.id) ? (
                       <img
                         src={`/kathir product/${getProductImageName(product.id)}`}
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className="max-w-full max-h-full object-contain"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                           const parent = (e.target as HTMLImageElement).parentElement;
                           if (parent && !parent.querySelector('.fallback-emoji')) {
                             const fallback = document.createElement('div');
-                            fallback.className = 'fallback-emoji text-4xl absolute';
+                            fallback.className = 'fallback-emoji text-5xl absolute';
                             fallback.textContent = '📦';
                             parent.appendChild(fallback);
                           }
                         }}
                       />
                     ) : (
-                      <div className="text-4xl">📦</div>
+                      <div className="text-5xl">📦</div>
                     )}
                   </div>
 
