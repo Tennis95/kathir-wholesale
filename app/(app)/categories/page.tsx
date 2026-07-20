@@ -222,7 +222,7 @@ function CategoriesContent() {
                   }}
                 >
                   {/* Product Image Area */}
-                  <div className="h-32 bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 flex items-center justify-center relative overflow-hidden p-2">
+                  <div className="h-32 bg-gradient-to-br from-sky-50 via-blue-50 to-sky-100 flex items-center justify-center relative overflow-hidden">
                     {getProductImageName(product.id) ? (
                       <img
                         src={`/kathir product/${getProductImageName(product.id)}`}
