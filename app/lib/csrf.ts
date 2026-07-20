@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Generate a CSRF token
@@ -44,4 +45,32 @@ export function getCSRFTokenFromRequest(request: Request): string | null {
   // Fallback to body (for forms)
   // Note: This would need to be form data in a real app
   return null;
+}
+
+/**
+ * Validate CSRF token in API route
+ * Use this wrapper in protected API routes
+ */
+export function validateCSRFInRoute(request: NextRequest): NextResponse | null {
+  const csrfToken = getCSRFTokenFromRequest(request);
+  const sessionToken = request.cookies.get('authToken')?.value;
+
+  // If user is authenticated, require CSRF token for POST/PUT/DELETE
+  if (sessionToken && ['POST', 'PUT', 'DELETE'].includes(request.method)) {
+    if (!csrfToken) {
+      return NextResponse.json(
+        { message: 'CSRF token missing' },
+        { status: 403 }
+      );
+    }
+
+    if (!validateCSRFToken(csrfToken)) {
+      return NextResponse.json(
+        { message: 'Invalid CSRF token' },
+        { status: 403 }
+      );
+    }
+  }
+
+  return null; // Validation passed
 }
