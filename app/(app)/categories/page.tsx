@@ -176,64 +176,14 @@ function CategoriesContent() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="flex gap-8">
-          {/* Sidebar - Categories */}
-          <motion.div
-            className="w-64 flex-shrink-0"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="bg-white rounded-2xl shadow-lg p-6" style={{ boxShadow: '0 4px 20px rgba(79, 169, 217, 0.08)' }}>
-              <h3 className="text-lg font-bold mb-4" style={{ color: '#1F2937' }}>Categories</h3>
-              <div className="space-y-2">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className="w-full text-left px-4 py-2 rounded-lg transition font-medium text-sm"
-                    style={{
-                      background: selectedCategory === cat ? 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)' : '#F0F9FE',
-                      color: selectedCategory === cat ? 'white' : '#2D7BA8'
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              {/* Sort Options */}
-              <div className="mt-8 pt-6 border-t" style={{ borderColor: '#E5E7EB' }}>
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#1F2937' }}>Sort By</h3>
-                <div className="space-y-2">
-                  {[
-                    { value: 'featured', label: 'Featured' }
-                  ].map(option => (
-                    <button
-                      key={option.value}
-                      onClick={() => setSortBy(option.value)}
-                      className="w-full text-left px-4 py-2 rounded-lg transition font-medium text-sm"
-                      style={{
-                        background: sortBy === option.value ? 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)' : '#F0F9FE',
-                        color: sortBy === option.value ? 'white' : '#2D7BA8'
-                      }}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Products Grid - 4 Columns x 3 Rows */}
-          <motion.div
-            className="flex-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+        {/* Products Grid */}
+        <motion.div
+          className="w-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(6, 1fr)' }}>
               {paginatedProducts.map((product, idx) => (
                 <motion.div
                   key={product.id}
@@ -385,8 +335,7 @@ function CategoriesContent() {
                 </button>
               )}
             </motion.div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Notification Toast */}
