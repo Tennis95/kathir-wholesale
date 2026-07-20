@@ -1,7 +1,7 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'motion/react';
@@ -20,6 +20,8 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingQty, setEditingQty] = useState(1);
+  const [postcodeLoading, setPostcodeLoading] = useState(false);
+  const postcodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [formData, setFormData] = useState({
     shippingStreet: '123 Main Street',
     shippingCity: 'London',
@@ -46,7 +48,36 @@ export default function CheckoutPage() {
       const items = JSON.parse(savedCart);
       setCart(items);
     }
+
+    return () => {
+      if (postcodeTimeoutRef.current) {
+        clearTimeout(postcodeTimeoutRef.current);
+      }
+    };
   }, [isAuthenticated, isLoading, router]);
+
+  const lookupPostcode = async (postcode: string) => {
+    if (!postcode.trim() || postcode.length < 5) return;
+
+    setPostcodeLoading(true);
+    try {
+      const response = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(postcode.trim())}`);
+      if (response.ok) {
+        const data = await response.json();
+        const result = data.result;
+
+        setFormData(prev => ({
+          ...prev,
+          shippingCity: result.admin_district || result.district || '',
+          shippingState: result.region || result.admin_county || '',
+        }));
+      }
+    } catch (error) {
+      console.error('Postcode lookup failed:', error);
+    } finally {
+      setPostcodeLoading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as any;
@@ -54,6 +85,15 @@ export default function CheckoutPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
     }));
+
+    if (name === 'shippingZip' && value.trim().length >= 5) {
+      if (postcodeTimeoutRef.current) {
+        clearTimeout(postcodeTimeoutRef.current);
+      }
+      postcodeTimeoutRef.current = setTimeout(() => {
+        lookupPostcode(value);
+      }, 500);
+    }
   };
 
   const handleDeleteItem = (itemId: string) => {
@@ -213,15 +253,26 @@ export default function CheckoutPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Postal Code <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
-                      name="shippingZip"
-                      value={formData.shippingZip}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
-                      style={{ borderColor: '#E5E7EB' }}
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="shippingZip"
+                        value={formData.shippingZip}
+                        onChange={handleChange}
+                        required
+                        placeholder="e.g., SW1A 1AA"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                        style={{ borderColor: '#E5E7EB' }}
+                      />
+                      {postcodeLoading && (
+                        <div className="absolute right-4 top-3">
+                          <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                        </div>
+                      )}
+                    </div>
+                    {postcodeLoading && (
+                      <p className="text-xs text-blue-600 mt-1">Looking up address...</p>
+                    )}
                   </div>
 
                   {/* Country */}
