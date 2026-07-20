@@ -300,7 +300,7 @@ export default function AnalyticsDashboard() {
                     <td className="px-6 py-4 font-bold" style={{ color: '#2D7BA8' }}>
                       {order.orderNumber}
                     </td>
-                    <td className="px-6 py-4 font-bold">£{order.total.toFixed(2)}</td>
+                    <td className="px-6 py-4 font-bold">£{(order.total || 0).toFixed(2)}</td>
                     <td className="px-6 py-4">
                       <span
                         className="px-3 py-1 rounded-full text-xs font-bold"
