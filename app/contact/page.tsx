@@ -14,11 +14,15 @@ export default function ContactPage() {
   });
 
   const [focusedField, setFocusedField] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Thank you for your message! We will get back to you soon.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    setSubmitted(true);
+    setTimeout(() => {
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setSubmitted(false);
+    }, 3000);
   };
 
   return (
@@ -75,9 +79,17 @@ export default function ContactPage() {
               className="bg-white rounded-2xl p-10 md:p-12 shadow-lg transition-all duration-300"
               style={{ boxShadow: '0 10px 40px rgba(79, 169, 217, 0.1)' }}
             >
-              <h2 className="text-3xl font-bold mb-8" style={{ color: '#1F2937', letterSpacing: '-0.5px' }}>
+              <h2 className="text-3xl font-bold mb-2" style={{ color: '#1F2937', letterSpacing: '-0.5px' }}>
                 Send us a Message
               </h2>
+              <p className="text-gray-600 mb-8 text-sm">
+                Have a question or inquiry? Fill out the form below and our team will get back to you within 24 business hours.
+              </p>
+              {submitted && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium">
+                  ✓ Thank you for your message! We'll be in touch shortly.
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Name Field */}
@@ -188,21 +200,26 @@ export default function ContactPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full py-4 font-bold text-white rounded-xl transition-all duration-300 transform hover:scale-102 text-lg"
+                  disabled={submitted}
+                  className="w-full py-4 font-bold text-white rounded-xl transition-all duration-300 transform hover:scale-102 text-lg disabled:opacity-75 disabled:cursor-not-allowed"
                   style={{
-                    background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-                    boxShadow: '0 6px 20px rgba(45, 123, 168, 0.25)'
+                    background: submitted ? '#10B981' : 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
+                    boxShadow: submitted ? '0 6px 20px rgba(16, 185, 129, 0.25)' : '0 6px 20px rgba(45, 123, 168, 0.25)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(45, 123, 168, 0.35)';
-                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    if (!submitted) {
+                      e.currentTarget.style.boxShadow = '0 12px 30px rgba(45, 123, 168, 0.35)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(45, 123, 168, 0.25)';
-                    e.currentTarget.style.transform = 'translateY(0)';
+                    if (!submitted) {
+                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(45, 123, 168, 0.25)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
                   }}
                 >
-                  Send Message
+                  {submitted ? '✓ Message Sent!' : 'Send Message'}
                 </button>
               </form>
             </div>
@@ -302,6 +319,50 @@ export default function ContactPage() {
             </motion.div>
           </div>
         </div>
+
+        {/* Why Choose Us Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-20 pt-12 border-t border-gray-200"
+        >
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-4" style={{ color: '#1F2937' }}>
+              Why Choose KATHIR?
+            </h2>
+            <p className="text-gray-600 max-w-2xl">
+              With over 20 years of experience in wholesale distribution, we're committed to providing the highest quality products and exceptional service to our customers across the UK.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: '🏆', title: 'Premium Quality', desc: 'Carefully sourced authentic groceries' },
+              { icon: '✓', title: 'Verified Products', desc: 'All items meet food safety standards' },
+              { icon: '🚚', title: 'Fast Delivery', desc: 'Reliable shipping across the UK' },
+              { icon: '💼', title: 'Professional Service', desc: '20+ years of wholesale expertise' }
+            ].map((item, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-xl p-6 text-center border border-gray-100 hover:shadow-lg transition-shadow"
+              >
+                <div className="text-4xl mb-3">{item.icon}</div>
+                <h3 className="font-bold mb-2" style={{ color: '#2D7BA8' }}>
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
