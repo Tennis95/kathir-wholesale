@@ -309,74 +309,117 @@ export default function CheckoutPage() {
             </motion.form>
           </div>
 
-          {/* Order Summary */}
+          {/* Order Summary - Amazon Style */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-lg p-8 border border-blue-100 h-fit sticky top-24"
+            className="bg-white rounded-lg shadow-md p-6 border border-gray-200 h-fit sticky top-24"
           >
-            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>
+            <h2 className="text-xl font-bold mb-5 pb-4 border-b-2 border-gray-200" style={{ color: '#1F2937' }}>
               Order Summary
             </h2>
 
             {cart.length === 0 ? (
-              <p className="text-gray-500 mb-6">Your cart is empty</p>
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-sm">Your cart is empty</p>
+                <a href="/categories" className="text-blue-600 hover:underline text-sm mt-2 inline-block">
+                  Continue Shopping
+                </a>
+              </div>
             ) : (
               <>
-                <div className="space-y-3">
+                <div className="space-y-4 mb-6">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex-1">
-                        <p className="text-gray-700 font-medium">{item.name}</p>
+                    <div key={item.id} className="pb-4 border-b border-gray-200 last:border-b-0">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1 pr-2">
+                          <p className="text-sm font-semibold text-gray-900 line-clamp-2">{item.name}</p>
+                          <p className="text-xs text-gray-500 mt-1">1 kg per unit</p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="ml-2 text-gray-400 hover:text-red-600 text-sm font-medium transition"
+                        >
+                          ✕
+                        </button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {editingId === item.id ? (
-                          <>
-                            <input
-                              type="number"
-                              min="1"
-                              value={editingQty}
-                              onChange={(e) => setEditingQty(parseInt(e.target.value) || 1)}
-                              className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
-                            />
-                            <button
-                              onClick={() => handleEditQuantity(item.id, editingQty)}
-                              className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              className="px-2 py-1 bg-gray-400 text-white text-xs rounded hover:bg-gray-500"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-gray-600 font-medium min-w-fit">Qty: {item.quantity}</span>
-                            <button
-                              onClick={() => {
-                                setEditingId(item.id);
-                                setEditingQty(item.quantity);
-                              }}
-                              className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem(item.id)}
-                              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        )}
+
+                      <div className="flex justify-between items-center mt-3">
+                        <div className="flex items-center gap-2">
+                          {editingId === item.id ? (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditQuantity(item.id, Math.max(1, editingQty - 1))}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100"
+                              >
+                                −
+                              </button>
+                              <input
+                                type="number"
+                                min="1"
+                                value={editingQty}
+                                onChange={(e) => setEditingQty(parseInt(e.target.value) || 1)}
+                                className="w-12 px-2 py-1 border border-gray-300 rounded text-sm text-center"
+                              />
+                              <button
+                                onClick={() => handleEditQuantity(item.id, editingQty + 1)}
+                                className="px-2 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100"
+                              >
+                                +
+                              </button>
+                              <button
+                                onClick={() => {
+                                  handleEditQuantity(item.id, editingQty);
+                                  setEditingId(null);
+                                }}
+                                className="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 ml-2"
+                              >
+                                Done
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-sm text-gray-600">Qty: <span className="font-semibold">{item.quantity}</span></span>
+                              <button
+                                onClick={() => {
+                                  setEditingId(item.id);
+                                  setEditingQty(item.quantity);
+                                }}
+                                className="text-xs text-blue-600 hover:text-blue-800 font-medium ml-3"
+                              >
+                                Edit
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2 border border-gray-100">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Items ({cart.length})</span>
+                    <span className="text-gray-900 font-medium">{cart.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pb-2 border-b border-gray-200">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-900 font-medium">Calculate at checkout</span>
+                  </div>
+                  <div className="flex justify-between text-sm pb-2">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="text-green-600 font-medium">FREE</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-base pt-2 border-t border-gray-200">
+                    <span style={{ color: '#1F2937' }}>Total</span>
+                    <span style={{ color: '#2D7BA8' }}>Calculated at checkout</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 text-center mt-4">
+                  Prices and shipping calculated in checkout
+                </p>
               </>
             )}
           </motion.div>
