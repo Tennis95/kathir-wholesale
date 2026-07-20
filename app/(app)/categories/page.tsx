@@ -16,6 +16,7 @@ function CategoriesContent() {
   const [sortBy, setSortBy] = useState<string>('featured');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [notification, setNotification] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const productsPerPage = 15;
 
   useEffect(() => {
@@ -36,8 +37,17 @@ function CategoriesContent() {
   useEffect(() => {
     let filtered = products;
 
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = products.filter(p =>
+        p.name.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query)
+      );
+    }
+
     if (selectedCategory !== 'All') {
-      filtered = products.filter(p => p.category === selectedCategory);
+      filtered = filtered.filter(p => p.category === selectedCategory);
     }
 
     if (sortBy === 'lowest') {
@@ -48,7 +58,7 @@ function CategoriesContent() {
 
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  }, [selectedCategory, sortBy, products]);
+  }, [selectedCategory, sortBy, products, searchQuery]);
 
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
@@ -168,8 +178,16 @@ function CategoriesContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
+            className="max-w-2xl"
           >
-            <SearchBar />
+            <input
+              type="text"
+              placeholder="Search products by name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-5 py-4 border-2 rounded-xl text-base transition focus:shadow-lg focus:outline-none"
+              style={{ borderColor: '#8FD3F4', color: '#333' }}
+            />
           </motion.div>
         </div>
       </motion.div>
