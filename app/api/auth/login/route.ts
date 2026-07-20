@@ -2,6 +2,7 @@ import { connectDB } from '@/lib/mongodb';
 import User from '@/lib/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { sanitizeEmail, sanitizeInput } from '@/lib/sanitize';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,11 @@ export async function POST(req: NextRequest) {
     await connectDB();
     console.log('[Auth] Database connected successfully');
 
-    const { email, password } = await req.json();
+    let { email, password } = await req.json();
+
+    // Sanitize inputs
+    email = sanitizeEmail(email);
+    password = sanitizeInput(password);
 
     // Validation
     if (!email || !password) {

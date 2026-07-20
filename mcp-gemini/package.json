@@ -1,0 +1,14 @@
+{
+  "name": "mcp-gemini",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local MCP server that proxies prompts to Google Gemini (AI Studio).",
+  "bin": {
+    "mcp-gemini": "index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.9.0",
+    "@modelcontextprotocol/sdk": "^1.15.0"
+  }
+}
