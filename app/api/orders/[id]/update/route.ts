@@ -6,9 +6,10 @@ import jwt from 'jsonwebtoken';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
 
     // Verify authentication
@@ -26,7 +27,7 @@ export async function PUT(
       process.env.JWT_SECRET || 'secret'
     );
 
-    const order = await Order.findById(params.id);
+    const order = await Order.findById(id);
 
     if (!order) {
       return NextResponse.json(
