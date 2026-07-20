@@ -83,6 +83,33 @@ export default function OrdersHistoryPage() {
     );
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.message || 'Error deleting order');
+        return;
+      }
+
+      setOrders(orders.filter((o) => o._id !== orderId));
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      alert('Error deleting order');
+    }
+  };
+
   if (!isMounted || isLoading || !isAuthenticated) {
     return (
       <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center py-12 px-4">
@@ -177,20 +204,46 @@ export default function OrdersHistoryPage() {
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 mb-4">
-                  <h4 className="font-bold mb-2">Items:</h4>
-                  {order.items.map((item, idx) => (
-                    <p key={idx} className="text-sm text-gray-600">
-                      {item.productName} x {item.quantity}
-                    </p>
-                  ))}
+                  <h4 className="font-bold mb-3">Items:</h4>
+                  {order.items && order.items.length > 0 ? (
+                    <div className="space-y-2">
+                      {order.items.map((item: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center bg-gray-50 p-3 rounded">
+                          <div>
+                            <p className="font-semibold text-gray-800">
+                              {item.name || item.productName || 'Product'}
+                            </p>
+                            {item.size && (
+                              <p className="text-xs text-gray-600">{item.size}</p>
+                            )}
+                          </div>
+                          <span className="font-bold text-gray-700">
+                            x{item.quantity}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-600">No items</p>
+                  )}
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 flex justify-between items-center">
-                  {order.trackingNumber && (
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Tracking</p>
-                      <p className="font-bold">{order.trackingNumber}</p>
-                    </div>
+                  <div>
+                    {order.trackingNumber && (
+                      <div>
+                        <p className="text-sm text-gray-600">Tracking</p>
+                        <p className="font-bold">{order.trackingNumber}</p>
+                      </div>
+                    )}
+                  </div>
+                  {order.status === 'pending' && (
+                    <button
+                      onClick={() => handleDeleteOrder(order._id)}
+                      className="px-4 py-2 rounded-lg font-bold text-sm text-white bg-red-500 hover:bg-red-600 transition"
+                    >
+                      Delete Order
+                    </button>
                   )}
                 </div>
               </motion.div>
