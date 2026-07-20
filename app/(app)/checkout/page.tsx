@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { motion } from 'motion/react';
 
 interface CartItem {
@@ -15,6 +16,7 @@ interface CartItem {
 export default function CheckoutPage() {
   const router = useRouter();
   const { isAuthenticated, user, token, isLoading } = useAuth();
+  const { addNotification } = useNotification();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -151,11 +153,29 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const data = await res.json();
+        const orderData = data.order;
+
+        addNotification({
+          type: 'success',
+          title: 'Order Placed Successfully!',
+          message: `Your order ${orderData.orderNumber} has been confirmed. Check your email for the invoice.`,
+          duration: 6000,
+        });
+
         localStorage.removeItem('kathir-cart');
-        router.push(`/account/orders`);
+        setTimeout(() => {
+          router.push(`/account/orders/${orderData._id}`);
+        }, 1000);
       } else {
         const errorData = await res.json();
-        setError(errorData.message || 'Failed to place order');
+        const errorMsg = errorData.message || 'Failed to place order';
+        setError(errorMsg);
+        addNotification({
+          type: 'error',
+          title: 'Order Failed',
+          message: errorMsg,
+          duration: 5000,
+        });
       }
     } catch (error: any) {
       console.error('Checkout error:', error);
