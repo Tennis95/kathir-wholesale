@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'motion/react';
+import EditOrderModal from '@/components/EditOrderModal';
 
 interface Order {
   _id: string;
@@ -16,6 +17,7 @@ interface Order {
   estimatedDelivery: string;
   trackingNumber: string;
   createdAt: string;
+  shippingAddress?: any;
 }
 
 export default function OrdersHistoryPage() {
@@ -25,6 +27,8 @@ export default function OrdersHistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -61,6 +65,22 @@ export default function OrdersHistoryPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditClick = (order: Order) => {
+    setEditingOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingOrder(null);
+  };
+
+  const handleOrderSave = (updatedOrder: Order) => {
+    setOrders(
+      orders.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
+    );
   };
 
   if (!isMounted || isLoading || !isAuthenticated) {
@@ -122,25 +142,38 @@ export default function OrdersHistoryPage() {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span
-                    className="px-4 py-2 rounded-full font-bold text-sm"
-                    style={{
-                      background:
-                        order.status === 'delivered'
-                          ? '#D1FAE5'
-                          : order.status === 'shipped'
-                          ? '#DBEAFE'
-                          : '#FEF3C7',
-                      color:
-                        order.status === 'delivered'
-                          ? '#065F46'
-                          : order.status === 'shipped'
-                          ? '#1E40AF'
-                          : '#92400E',
-                    }}
-                  >
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="px-4 py-2 rounded-full font-bold text-sm"
+                      style={{
+                        background:
+                          order.status === 'delivered'
+                            ? '#D1FAE5'
+                            : order.status === 'shipped'
+                            ? '#DBEAFE'
+                            : '#FEF3C7',
+                        color:
+                          order.status === 'delivered'
+                            ? '#065F46'
+                            : order.status === 'shipped'
+                            ? '#1E40AF'
+                            : '#92400E',
+                      }}
+                    >
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </span>
+                    {order.status === 'pending' && (
+                      <button
+                        onClick={() => handleEditClick(order)}
+                        className="px-4 py-2 rounded-lg font-bold text-sm text-white"
+                        style={{
+                          background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
+                        }}
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="border-t border-gray-200 pt-4 mb-4">
@@ -165,6 +198,17 @@ export default function OrdersHistoryPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <EditOrderModal
+          order={editingOrder}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSave={handleOrderSave}
+          token={token || ''}
+        />
+      )}
     </div>
   );
 }
