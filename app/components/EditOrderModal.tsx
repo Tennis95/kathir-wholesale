@@ -33,7 +33,7 @@ export default function EditOrderModal({
   };
 
   const handleRemoveItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
+    setItems(items.filter((_: any, i: number) => i !== index));
   };
 
   const handleAddressChange = (field: string, value: string) => {
