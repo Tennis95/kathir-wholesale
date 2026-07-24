@@ -3,11 +3,11 @@ import Order from '@/lib/models/Order';
 import User from '@/lib/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: { params: { orderId: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
     await connectDB();
 
-    const { orderId } = params;
+    const { orderId } = await params;
 
     // Fetch order by ID or order number
     const order = await Order.findById(orderId).populate('userId', 'name email phone');
