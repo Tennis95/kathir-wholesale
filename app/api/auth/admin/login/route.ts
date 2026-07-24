@@ -2,7 +2,6 @@ import { connectDB } from '@/lib/mongodb';
 import AdminUser from '@/lib/models/AdminUser';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { sanitizeEmail, sanitizeInput } from '@/lib/sanitize';
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,9 +13,8 @@ export async function POST(req: NextRequest) {
 
     let { email, password } = await req.json();
 
-    // Sanitize inputs
-    email = sanitizeEmail(email);
-    password = sanitizeInput(password);
+    // Normalize email (lowercase and trim)
+    email = email?.toLowerCase().trim() || '';
 
     // Validation
     if (!email || !password) {
