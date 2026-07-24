@@ -96,26 +96,26 @@ function generateOrdersPDF(orders: any[]): string {
 
   // Header
   doc.setFontSize(16);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.text('KATHIR LTD - Orders Report', margin, yPosition);
   yPosition += 10;
 
   // Report Date
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.text(`Generated: ${new Date().toLocaleDateString('en-GB')} ${new Date().toLocaleTimeString('en-GB')}`, margin, yPosition);
   yPosition += 5;
   doc.text(`Total Orders: ${orders.length}`, margin, yPosition);
   yPosition += 10;
 
   // Summary Statistics
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text('Summary', margin, yPosition);
   yPosition += 6;
 
   doc.setFontSize(10);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
   const statusCounts: any = {};
   orders.forEach(o => {
@@ -137,14 +137,14 @@ function generateOrdersPDF(orders: any[]): string {
   yPosition += 6;
 
   // Orders Table
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text('Orders Detail', margin, yPosition);
   yPosition += 8;
 
   // Table Headers
   doc.setFontSize(9);
-  doc.setFont(undefined, 'bold');
+  doc.setFont('helvetica', 'bold');
   const colWidths = [30, 35, 20, 25, 30];
   const headers = ['Order ID', 'Customer', 'Total', 'Status', 'Date'];
   let xPos = margin;
@@ -160,7 +160,7 @@ function generateOrdersPDF(orders: any[]): string {
   yPosition += 4;
 
   // Table Data
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
 
   orders.forEach((order, index) => {
@@ -190,7 +190,7 @@ function generateOrdersPDF(orders: any[]): string {
   // Footer
   yPosition = pageHeight - 10;
   doc.setFontSize(8);
-  doc.setFont(undefined, 'normal');
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(128);
   doc.text('KATHIR LTD - Wholesale Grocery Supplier', margin, yPosition);
   doc.text(`Page ${doc.internal.pages.length - 1}`, pageWidth - margin - 20, yPosition);
