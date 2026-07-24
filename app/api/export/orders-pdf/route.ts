@@ -59,12 +59,14 @@ export async function GET(req: NextRequest) {
 
     console.log(`[Export Orders PDF] ✅ Fetched ${orders.length} orders`);
 
-    // Generate PDF
-    const pdfBuffer = generateOrdersPDF(orders);
-    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+    // Generate PDF (returns base64 string)
+    const pdfBase64 = generateOrdersPDF(orders);
+
+    // Decode base64 to buffer
+    const pdfBuffer = Buffer.from(pdfBase64, 'base64');
 
     // Return PDF
-    return new NextResponse(pdfBlob, {
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -84,7 +86,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function generateOrdersPDF(orders: any[]): Uint8Array {
+function generateOrdersPDF(orders: any[]): string {
   const doc = new jsPDF();
   const pageHeight = doc.internal.pageSize.getHeight();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -193,6 +195,6 @@ function generateOrdersPDF(orders: any[]): Uint8Array {
   doc.text('KATHIR LTD - Wholesale Grocery Supplier', margin, yPosition);
   doc.text(`Page ${doc.internal.pages.length - 1}`, pageWidth - margin - 20, yPosition);
 
-  // Return PDF as Uint8Array
-  return new Uint8Array(doc.output('arraybuffer'));
+  // Return PDF as base64 string
+  return doc.output('datauristring').split(',')[1];
 }
