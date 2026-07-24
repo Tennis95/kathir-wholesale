@@ -59,4 +59,13 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Performance optimization indexes
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ total: 1 });
+orderSchema.index({ status: 1 });
+orderSchema.index({ userId: 1 });
+orderSchema.index({ status: 1, createdAt: -1 }); // Common query pattern
+orderSchema.index({ total: 1, createdAt: -1 }); // Common query pattern
+orderSchema.index({ paymentStatus: 1 });
+
 export default mongoose.models.Order || mongoose.model('Order', orderSchema);

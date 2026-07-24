@@ -68,6 +68,7 @@ export async function GET(req: NextRequest) {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="orders_report_${new Date().toISOString().split('T')[0]}.pdf"`,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
   } catch (error) {

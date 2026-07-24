@@ -16,6 +16,7 @@ export default function OrdersPage() {
 
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -31,6 +32,7 @@ export default function OrdersPage() {
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [amountError, setAmountError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -47,6 +49,21 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
+      setError(null);
+
+      // Validate date range
+      if (dateFrom && dateTo && new Date(dateFrom) > new Date(dateTo)) {
+        throw new Error('Date From must be before Date To');
+      }
+
+      // Validate amount range
+      if (minAmount && maxAmount && parseFloat(minAmount) > parseFloat(maxAmount)) {
+        setAmountError('Minimum amount must be less than maximum');
+        setLoading(false);
+        return;
+      }
+      setAmountError(null);
+
       const query = new URLSearchParams({
         status: statusFilter,
         page: page.toString(),
@@ -64,16 +81,23 @@ export default function OrdersPage() {
         },
       });
 
+      if (!res.status === 401) {
+        router.push('/auth/admin/login');
+        return;
+      }
+
       if (!res.ok) throw new Error('Failed to fetch orders');
 
       const data = await res.json();
       setOrders(data.data || []);
       setTotalPages(data.pagination?.pages || 1);
     } catch (err: any) {
+      const errorMessage = err.message || 'Failed to load orders';
+      setError(errorMessage);
       addNotification({
         type: 'error',
         title: 'Error',
-        message: err.message || 'Failed to load orders',
+        message: errorMessage,
       });
     } finally {
       setLoading(false);
@@ -438,9 +462,16 @@ export default function OrdersPage() {
                     setPage(1);
                   }}
                   placeholder="999999.00"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                  className={`w-full px-3 py-2 rounded-lg border text-sm ${
+                    amountError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                 />
               </div>
+              {amountError && (
+                <div className="col-span-full text-xs text-red-600 bg-red-50 p-2 rounded">
+                  ⚠️ {amountError}
+                </div>
+              )}
             </motion.div>
           )}
         </motion.div>
@@ -482,13 +513,29 @@ export default function OrdersPage() {
           </motion.div>
         )}
 
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6"
+          >
+            <p className="text-sm text-red-700">
+              <strong>Error:</strong> {error}
+            </p>
+          </motion.div>
+        )}
+
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading orders...</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-12">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+              <p className="text-gray-600 font-medium">Loading orders...</p>
+            </div>
           </div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">No orders found</p>
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
+            <p className="text-gray-600 font-medium">📭 No orders found</p>
+            <p className="text-gray-500 text-sm mt-2">Try adjusting your filters</p>
           </div>
         ) : (
           <>
