@@ -1,266 +1,322 @@
 'use client';
 
 export const dynamic = 'force-dynamic';
-import { useAuth } from '@/context/AuthContext';
+import { useAdminAuth } from '@/context/AdminAuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 
 const CATEGORIES = [
-  'Ready to Cook',
-  'Rice & Grains',
+  'Specialty Flours',
+  'Grains',
+  'Rice',
+  'Spices',
   'Lentils & Pulses',
-  'Groceries',
-  'Snacks & Sweets',
-  'Flour & Baking',
-  'Vegetables',
-  'Spices & Masalas',
+  'Ready to Cook',
 ];
 
 export default function EditProductPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAdminAuthenticated, adminToken, isLoading: authLoading } = useAdminAuth();
+  const { addNotification } = useNotification();
   const router = useRouter();
   const params = useParams();
   const productId = params?.id as string;
 
   const [formData, setFormData] = useState({
     name: '',
-    category: 'Ready to Cook',
+    category: 'Rice',
     description: '',
     price: '',
     size: '',
     stock: '',
     discount: '0',
+    imageUrl: '',
   });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      router.push('/auth/login');
+    if (!authLoading && !isAdminAuthenticated) {
+      router.push('/auth/admin/login');
       return;
     }
 
-    fetchProduct();
-  }, [isAuthenticated, user?.role, router, productId]);
+    if (isAdminAuthenticated && productId) {
+      fetchProduct();
+    }
+  }, [isAdminAuthenticated, router, productId, authLoading]);
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch(`/api/admin/products/${productId}`);
+      setLoading(true);
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to load product');
+      }
+
       const data = await res.json();
-      const product = data.product;
+      const product = data.data || data.product;
 
       setFormData({
-        name: product.name,
-        category: product.category,
+        name: product.name || '',
+        category: product.category || 'Rice',
         description: product.description || '',
-        price: product.price.toString(),
-        size: product.size,
-        stock: product.stock.toString(),
+        price: product.price?.toString() || '',
+        size: product.size || '',
+        stock: product.stock?.toString() || '',
         discount: (product.discount || 0).toString(),
+        imageUrl: product.imageUrl || '',
       });
-    } catch (err) {
-      setError('Failed to load product');
+      setErrors({});
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to load product',
+        duration: 5000,
+      });
+      router.push('/admin/products');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: any) => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Product name is required';
+    if (!formData.category.trim()) newErrors.category = 'Category is required';
+    if (!formData.size.trim()) newErrors.size = 'Size is required';
+    if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Price must be greater than 0';
+    if (!formData.stock || parseInt(formData.stock) < 0) newErrors.stock = 'Stock must be 0 or greater';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+
+    if (!validateForm()) {
+      addNotification({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please fix the errors in the form',
+        duration: 5000,
+      });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const res = await fetch(`/api/admin/products/${productId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+        },
         body: JSON.stringify({
-          ...formData,
+          name: formData.name.trim(),
+          category: formData.category,
+          description: formData.description.trim(),
           price: parseFloat(formData.price),
           stock: parseInt(formData.stock),
-          discount: parseInt(formData.discount),
+          size: formData.size.trim(),
+          imageUrl: formData.imageUrl.trim(),
+          discount: formData.discount ? parseFloat(formData.discount) : 0,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.message);
+        throw new Error(data.message || 'Failed to update product');
       }
 
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: 'Product updated successfully!',
+        duration: 4000,
+      });
+
       router.push('/admin/products');
-      alert('Product updated successfully!');
     } catch (err: any) {
-      setError(err.message || 'Error updating product');
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to update product',
+        duration: 5000,
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (!isAuthenticated || user?.role !== 'admin') {
-    return null;
-  }
-
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center">
-        <p className="text-gray-600">Loading product...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F9FAFB' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading product...</p>
+        </div>
       </div>
     );
   }
 
+  if (!isAdminAuthenticated) {
+    return null;
+  }
+
   return (
-    <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8"
-        >
-          <a href="/admin/products" className="text-blue-600 hover:underline mb-4 inline-block">
-            Back to Products
-          </a>
-          <h1 className="text-4xl font-bold" style={{ color: '#1F2937' }}>
-            Edit Product
-          </h1>
-        </motion.div>
+    <div className="min-h-screen" style={{ background: '#F9FAFB' }}>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-6 py-4">
+          <a href="/admin/products" className="text-blue-600 text-sm hover:underline mb-2 inline-block">← Back to Products</a>
+          <h1 className="text-2xl font-bold" style={{ color: '#1F2937' }}>Edit Product</h1>
+        </div>
+      </div>
 
-        <motion.div
-          className="bg-white rounded-2xl shadow-lg p-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-              <p className="text-red-600">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Category
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Size
-                </label>
-                <input
-                  type="text"
-                  name="size"
-                  value={formData.size}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Price (£)
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  required
-                  step="0.01"
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Stock
-                </label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#2D7BA8' }}>
-                  Discount (%)
-                </label>
-                <input
-                  type="number"
-                  name="discount"
-                  value={formData.discount}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-                  style={{ borderColor: '#8FD3F4' }}
-                />
-              </div>
+      <div className="max-w-4xl mx-auto px-6 py-8">
+        <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-xl border border-gray-200 p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="e.g. Basmati Rice Premium Quality 1kg"
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
 
-            <div className="flex gap-4">
-              <motion.button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 py-3 rounded-lg font-bold text-white transition transform hover:scale-105 disabled:opacity-50"
-                style={{
-                  background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-                  boxShadow: '0 4px 12px rgba(45, 123, 168, 0.25)',
-                }}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Size/Weight *</label>
+              <input
+                type="text"
+                name="size"
+                value={formData.size}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.size ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="e.g. 1kg, 500g"
+              />
+              {errors.size && <p className="text-red-500 text-sm mt-1">{errors.size}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
               >
-                {submitting ? 'Saving...' : 'Save Changes'}
-              </motion.button>
-              <a
-                href="/admin/products"
-                className="flex-1 py-3 rounded-lg font-bold text-white transition text-center"
-                style={{ background: '#6B7280' }}
-              >
+                {CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Price (£) *</label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                step="0.01"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="9.99"
+              />
+              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
+              <input
+                type="number"
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${errors.stock ? 'border-red-500' : 'border-gray-300'}`}
+                placeholder="50"
+              />
+              {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Discount (%)</label>
+              <input
+                type="number"
+                name="discount"
+                value={formData.discount}
+                onChange={handleChange}
+                step="0.01"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+            <input
+              type="url"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300"
+              placeholder="https://example.com/image.jpg"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300"
+              rows={4}
+              placeholder="Product description..."
+            ></textarea>
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-6 py-2 rounded-lg text-white font-medium"
+              style={{ background: '#2D7BA8', opacity: submitting ? 0.7 : 1 }}
+            >
+              {submitting ? 'Saving...' : 'Save Changes'}
+            </button>
+            <a href="/admin/products">
+              <button type="button" className="px-6 py-2 rounded-lg border border-gray-300 font-medium text-gray-700">
                 Cancel
-              </a>
-            </div>
-          </form>
-        </motion.div>
+              </button>
+            </a>
+          </div>
+        </motion.form>
       </div>
     </div>
   );

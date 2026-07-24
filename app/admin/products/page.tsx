@@ -1,5 +1,6 @@
 'use client';
 import { useAdminAuth } from '@/context/AdminAuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -9,12 +10,14 @@ export const dynamic = 'force-dynamic';
 
 export default function ProductsPage() {
   const { isAdminAuthenticated, adminToken, isLoading: authLoading } = useAdminAuth();
+  const { addNotification } = useNotification();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -45,13 +48,22 @@ export default function ProductsPage() {
     } catch (err: any) {
       console.error('Error fetching products:', err);
       setError(err.message || 'Failed to load products');
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to load products',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (productId: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
+  const handleDelete = async (productId: string, productName: string) => {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingId(productId);
 
     try {
       const res = await fetch(`/api/admin/products/${productId}`, {
@@ -61,11 +73,27 @@ export default function ProductsPage() {
         },
       });
 
-      if (!res.ok) throw new Error('Failed to delete product');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete product');
+      }
 
       setProducts(products.filter(p => p.id !== productId));
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: `"${productName}" has been deleted successfully`,
+        duration: 4000,
+      });
     } catch (err: any) {
-      alert('Error deleting product: ' + err.message);
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to delete product',
+        duration: 5000,
+      });
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -156,15 +184,16 @@ export default function ProductsPage() {
                         {p.stock}
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">£{p.price?.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-center text-sm">
-                        <Link href={`/admin/products/${p.id}`} className="text-blue-600 hover:underline mr-3">
+                      <td className="px-6 py-4 text-center text-sm space-x-3">
+                        <Link href={`/admin/products/${p.id}`} className="text-blue-600 hover:underline">
                           Edit
                         </Link>
                         <button
-                          onClick={() => handleDelete(p.id)}
-                          className="text-red-600 hover:underline"
+                          onClick={() => handleDelete(p.id, p.name)}
+                          disabled={deletingId === p.id}
+                          className="text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Delete
+                          {deletingId === p.id ? 'Deleting...' : 'Delete'}
                         </button>
                       </td>
                     </tr>

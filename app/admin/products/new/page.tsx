@@ -1,5 +1,6 @@
 'use client';
 import { useAdminAuth } from '@/context/AdminAuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState, FormEvent } from 'react';
@@ -9,9 +10,10 @@ export const dynamic = 'force-dynamic';
 
 export default function NewProductPage() {
   const { isAdminAuthenticated, adminToken, isLoading } = useAdminAuth();
+  const { addNotification } = useNotification();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -31,28 +33,59 @@ export default function NewProductPage() {
 
   if (isLoading || !isAdminAuthenticated) return null;
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = 'Product name is required';
+    if (!formData.category.trim()) newErrors.category = 'Category is required';
+    if (!formData.size.trim()) newErrors.size = 'Size is required';
+    if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Price must be greater than 0';
+    if (!formData.stock || parseInt(formData.stock) < 0) newErrors.stock = 'Stock must be 0 or greater';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
     setIsSubmitting(true);
 
-    try {
-      if (!formData.name || !formData.category || !formData.price || !formData.stock) {
-        throw new Error('Please fill in all required fields');
-      }
+    if (!validateForm()) {
+      addNotification({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Please fill in all required fields correctly',
+        duration: 5000,
+      });
+      setIsSubmitting(false);
+      return;
+    }
 
+    try {
       const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${adminToken}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          category: formData.category,
+          description: formData.description.trim(),
+          price: parseFloat(formData.price),
+          stock: parseInt(formData.stock),
+          size: formData.size.trim(),
+          imageUrl: formData.imageUrl.trim(),
+          discount: formData.discount ? parseFloat(formData.discount) : 0,
+        }),
       });
 
       if (!res.ok) {
@@ -60,9 +93,21 @@ export default function NewProductPage() {
         throw new Error(data.message || 'Failed to create product');
       }
 
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: `"${formData.name}" has been created successfully!`,
+        duration: 4000,
+      });
+
       router.push('/admin/products');
     } catch (err: any) {
-      setError(err.message || 'Error creating product');
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to create product',
+        duration: 5000,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -79,49 +124,38 @@ export default function NewProductPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         <motion.form onSubmit={handleSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-xl border border-gray-200 p-8">
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200"
-            >
-              <p style={{ color: '#DC2626' }}>{error}</p>
-            </motion.div>
-          )}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Product Name *</label>
               <input
                 type="text"
                 name="name"
-                required
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="e.g. Appam Idiyappam pathiri podi 1kg"
               />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Size/Weight *</label>
               <input
                 type="text"
                 name="size"
-                required
                 value={formData.size}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.size ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="e.g. 1kg, 500g"
               />
+              {errors.size && <p className="text-red-500 text-sm mt-1">{errors.size}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
               <select
                 name="category"
-                required
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
               >
                 <option value="">Select Category</option>
                 <option value="Specialty Flours">Specialty Flours</option>
@@ -131,31 +165,32 @@ export default function NewProductPage() {
                 <option value="Lentils & Pulses">Lentils & Pulses</option>
                 <option value="Ready to Cook">Ready to Cook</option>
               </select>
+              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Price (£) *</label>
               <input
                 type="number"
                 name="price"
-                required
                 step="0.01"
                 value={formData.price}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="12.99"
               />
+              {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity *</label>
               <input
                 type="number"
                 name="stock"
-                required
                 value={formData.stock}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+                className={`w-full px-4 py-2 rounded-lg border ${errors.stock ? 'border-red-500' : 'border-gray-300'}`}
                 placeholder="50"
               />
+              {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Discount (%)</label>
