@@ -42,8 +42,9 @@ export default function AdminLoginPage() {
       }
 
       const data = await res.json();
-      localStorage.setItem('kathir-admin-user', JSON.stringify(data.user));
-      localStorage.setItem('kathir-admin-token', data.token);
+      // Store in standard auth keys so AuthContext can read it
+      localStorage.setItem('kathir-user', JSON.stringify(data.user));
+      localStorage.setItem('kathir-token', data.token);
       router.push('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');

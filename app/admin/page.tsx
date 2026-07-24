@@ -11,13 +11,15 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      router.push('/auth/login');
-    }
-  }, [isAuthenticated, user?.role, router]);
+  const isAdmin = isAuthenticated && ['admin', 'super_admin', 'manager', 'finance'].includes(user?.role);
 
-  if (!isAuthenticated || user?.role !== 'admin') {
+  useEffect(() => {
+    if (!isAdmin) {
+      router.push('/auth/admin/login');
+    }
+  }, [isAdmin, router]);
+
+  if (!isAdmin) {
     return null;
   }
 
