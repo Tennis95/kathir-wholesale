@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
+import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
@@ -8,18 +8,16 @@ import { motion } from 'motion/react';
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
-  const { user, isAuthenticated } = useAuth();
+  const { adminUser, isAdminAuthenticated } = useAdminAuth();
   const router = useRouter();
 
-  const isAdmin = isAuthenticated && user?.role && ['admin', 'super_admin', 'manager', 'finance'].includes(user.role);
-
   useEffect(() => {
-    if (!isAdmin) {
+    if (!isAdminAuthenticated) {
       router.push('/auth/admin/login');
     }
-  }, [isAdmin, router]);
+  }, [isAdminAuthenticated, router]);
 
-  if (!isAdmin) {
+  if (!isAdminAuthenticated) {
     return null;
   }
 
@@ -35,7 +33,7 @@ export default function AdminDashboard() {
           <h1 className="text-4xl font-bold mb-2" style={{ color: '#1F2937' }}>
             Admin Dashboard
           </h1>
-          <p className="text-gray-600">Welcome, {user?.name}!</p>
+          <p className="text-gray-600">Welcome, {adminUser?.name}!</p>
         </motion.div>
 
         {/* Stats Grid */}
