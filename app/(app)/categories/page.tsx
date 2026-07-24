@@ -25,11 +25,12 @@ function CategoriesContent() {
       setCart(JSON.parse(savedCart));
     }
 
-    fetch('/products.json')
+    fetch('/api/products')
       .then(res => res.json())
       .then(data => {
-        setProducts(data);
-        setFilteredProducts(data);
+        const productsData = data.data || [];
+        setProducts(productsData);
+        setFilteredProducts(productsData);
       })
       .catch(err => console.error('Error loading products:', err));
   }, []);
