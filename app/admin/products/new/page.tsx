@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 export const dynamic = 'force-dynamic';
 
 export default function NewProductPage() {
-  const { isAdminAuthenticated, adminToken } = useAdminAuth();
+  const { isAdminAuthenticated, adminToken, isLoading } = useAdminAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -24,12 +24,12 @@ export default function NewProductPage() {
   });
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
+    if (!isLoading && !isAdminAuthenticated) {
       router.push('/auth/admin/login');
     }
-  }, [isAdminAuthenticated, router]);
+  }, [isAdminAuthenticated, router, isLoading]);
 
-  if (!isAdminAuthenticated) return null;
+  if (isLoading || !isAdminAuthenticated) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

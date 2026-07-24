@@ -9,16 +9,16 @@ import { motion } from 'motion/react';
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
-  const { adminUser, isAdminAuthenticated, logout } = useAdminAuth();
+  const { adminUser, isAdminAuthenticated, isLoading, logout } = useAdminAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
+    if (!isLoading && !isAdminAuthenticated) {
       router.push('/auth/admin/login');
     }
-  }, [isAdminAuthenticated, router]);
+  }, [isAdminAuthenticated, router, isLoading]);
 
-  if (!isAdminAuthenticated) {
+  if (isLoading || !isAdminAuthenticated) {
     return null;
   }
 

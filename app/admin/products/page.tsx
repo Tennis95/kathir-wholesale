@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 export const dynamic = 'force-dynamic';
 
 export default function ProductsPage() {
-  const { isAdminAuthenticated, adminToken } = useAdminAuth();
+  const { isAdminAuthenticated, adminToken, isLoading: authLoading } = useAdminAuth();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -17,10 +17,10 @@ export default function ProductsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
+    if (!authLoading && !isAdminAuthenticated) {
       router.push('/auth/admin/login');
     }
-  }, [isAdminAuthenticated, router]);
+  }, [isAdminAuthenticated, router, authLoading]);
 
   useEffect(() => {
     if (isAdminAuthenticated) {
