@@ -1,25 +1,24 @@
 import { connectDB } from '@/lib/mongodb';
 import Product from '@/lib/models/Product';
-import User from '@/lib/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
-// Verify admin token
-async function verifyAdmin(req: NextRequest) {
+// Verify admin token from Authorization header
+function verifyAdminToken(req: NextRequest) {
   try {
-    const token = req.cookies.get('authToken')?.value;
-    if (!token) {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
       return { valid: false, user: null };
     }
 
+    const token = authHeader.substring(7);
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    const user = await User.findById(decoded.userId);
 
-    if (!user || user.role !== 'admin') {
+    if (!decoded.isAdmin) {
       return { valid: false, user: null };
     }
 
-    return { valid: true, user };
+    return { valid: true, user: decoded };
   } catch {
     return { valid: false, user: null };
   }
@@ -29,15 +28,16 @@ async function verifyAdmin(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const products = await Product.find().limit(100);
+    const products = await Product.find().sort({ createdAt: -1 }).lean();
 
     return NextResponse.json(
-      { products, count: products.length },
+      { success: true, count: products.length, data: products },
       { status: 200 }
     );
   } catch (error: any) {
+    console.error('[Admin Products GET]', error);
     return NextResponse.json(
-      { message: error.message || 'Error fetching products' },
+      { success: false, message: error.message || 'Error fetching products' },
       { status: 500 }
     );
   }
@@ -46,10 +46,10 @@ export async function GET(req: NextRequest) {
 // POST create product
 export async function POST(req: NextRequest) {
   try {
-    const auth = await verifyAdmin(req);
+    const auth = verifyAdminToken(req);
     if (!auth.valid) {
       return NextResponse.json(
-        { message: 'Unauthorized' },
+        { success: false, message: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -57,43 +57,37 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     const body = await req.json();
-    const { id, name, category, description, price, size, stock, discount } = body;
+    const { name, category, description, price, size, stock, imageUrl, discount } = body;
 
-    if (!id || !name || !category || !price || !size) {
+    if (!name || !category || !price || !size) {
       return NextResponse.json(
-        { message: 'Please provide all required fields' },
-        { status: 400 }
-      );
-    }
-
-    const existingProduct = await Product.findOne({ id });
-    if (existingProduct) {
-      return NextResponse.json(
-        { message: 'Product ID already exists' },
+        { success: false, message: 'Missing required fields: name, category, price, size' },
         { status: 400 }
       );
     }
 
     const product = await Product.create({
-      id,
+      id: `PROD-${Date.now()}`,
       name,
       category,
       description,
-      price,
+      price: parseFloat(price),
       size,
-      stock,
-      discount: discount || 0,
-      inStock: stock > 0,
-      createdBy: auth.user?._id,
+      stock: parseInt(stock) || 0,
+      imageUrl,
+      discount: discount ? parseFloat(discount) : 0,
+      inStock: parseInt(stock) > 0,
+      createdBy: auth.user?.userId,
     });
 
     return NextResponse.json(
-      { message: 'Product created successfully', product },
+      { success: true, message: 'Product created successfully', data: product },
       { status: 201 }
     );
   } catch (error: any) {
+    console.error('[Admin Products POST]', error);
     return NextResponse.json(
-      { message: error.message || 'Error creating product' },
+      { success: false, message: error.message || 'Error creating product' },
       { status: 500 }
     );
   }
