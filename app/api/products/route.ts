@@ -1,14 +1,13 @@
-import { connectToDatabase } from '@/app/lib/db';
+import { connectDB } from '@/lib/mongodb';
+import Product from '@/lib/models/Product';
 import { NextResponse } from 'next/server';
-import { Product } from '@/app/lib/models';
 
 export async function GET(req: Request) {
   try {
-    const { db } = await connectToDatabase();
-    const productsCollection = db.collection<Product>('products');
+    await connectDB();
 
-    // Get all products
-    const products = await productsCollection.find({}).toArray();
+    // Get all products from MongoDB
+    const products = await Product.find({}).lean();
 
     return NextResponse.json(
       {
@@ -32,8 +31,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const { db } = await connectToDatabase();
-    const productsCollection = db.collection<Product>('products');
+    await connectDB();
 
     const body = await req.json();
 
@@ -45,19 +43,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const product: Product = {
+    const product = new Product({
       ...body,
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    });
 
-    const result = await productsCollection.insertOne(product);
+    const result = await product.save();
 
     return NextResponse.json(
       {
         status: 'success',
         message: 'Product created',
-        data: { ...product, _id: result.insertedId },
+        data: result,
       },
       { status: 201 }
     );
