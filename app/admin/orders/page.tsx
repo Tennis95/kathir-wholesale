@@ -22,6 +22,10 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState('');
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [isPerformingBulkUpdate, setIsPerformingBulkUpdate] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -101,6 +105,106 @@ export default function OrdersPage() {
     }
   };
 
+  const handleSelectOrder = (orderId: string) => {
+    const newSelected = new Set(selectedOrders);
+    if (newSelected.has(orderId)) {
+      newSelected.delete(orderId);
+    } else {
+      newSelected.add(orderId);
+    }
+    setSelectedOrders(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrders.size === orders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(orders.map(o => o._id)));
+    }
+  };
+
+  const handleBulkUpdate = async () => {
+    if (!bulkStatus || selectedOrders.size === 0) return;
+
+    try {
+      setIsPerformingBulkUpdate(true);
+
+      const res = await fetch('/api/orders/bulk', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderIds: Array.from(selectedOrders),
+          status: bulkStatus,
+          reason: 'Bulk update from admin',
+        }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update orders');
+
+      const data = await res.json();
+
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: `Updated ${data.updated} orders successfully`,
+        duration: 3000,
+      });
+
+      setSelectedOrders(new Set());
+      setBulkStatus('');
+      fetchOrders();
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to update orders',
+      });
+    } finally {
+      setIsPerformingBulkUpdate(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+
+      const query = new URLSearchParams({
+        status: statusFilter,
+        format: 'csv',
+      });
+
+      const res = await fetch(`/api/export/orders?${query}`);
+      if (!res.ok) throw new Error('Failed to export orders');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: 'Orders exported successfully',
+        duration: 3000,
+      });
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to export orders',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
@@ -143,25 +247,73 @@ export default function OrdersPage() {
           animate={{ opacity: 1 }}
           className="bg-white rounded-xl border border-gray-200 p-6 mb-8"
         >
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Filter by Status
-          </label>
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setPage(1);
-            }}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300"
-          >
-            <option value="all">All Orders</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Filter by Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300"
+              >
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <button
+              onClick={handleExport}
+              disabled={isExporting || orders.length === 0}
+              className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
+            >
+              {isExporting ? '📥 Exporting...' : '📥 Export CSV'}
+            </button>
+          </div>
         </motion.div>
+
+        {selectedOrders.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-center gap-4"
+          >
+            <span className="text-sm font-medium text-blue-900">
+              {selectedOrders.size} order{selectedOrders.size !== 1 ? 's' : ''} selected
+            </span>
+            <select
+              value={bulkStatus}
+              onChange={(e) => setBulkStatus(e.target.value)}
+              className="px-3 py-1 rounded-lg border border-blue-300 text-sm"
+            >
+              <option value="">Update Status To...</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button
+              onClick={handleBulkUpdate}
+              disabled={!bulkStatus || isPerformingBulkUpdate}
+              className="px-4 py-1 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isPerformingBulkUpdate ? 'Updating...' : 'Update'}
+            </button>
+            <button
+              onClick={() => setSelectedOrders(new Set())}
+              className="ml-auto px-4 py-1 rounded-lg bg-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-400"
+            >
+              Clear
+            </button>
+          </motion.div>
+        )}
 
         {loading ? (
           <div className="text-center py-12">
@@ -181,6 +333,14 @@ export default function OrdersPage() {
               <table className="w-full">
                 <thead style={{ background: '#F3F4F6' }}>
                   <tr>
+                    <th className="px-4 py-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedOrders.size > 0 && selectedOrders.size === orders.length}
+                        onChange={handleSelectAll}
+                        className="w-5 h-5 cursor-pointer"
+                      />
+                    </th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Order ID</th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Customer</th>
                     <th className="px-6 py-4 text-left text-sm font-bold">Total</th>
@@ -191,7 +351,15 @@ export default function OrdersPage() {
                 </thead>
                 <tbody>
                   {orders.map((order: any) => (
-                    <tr key={order._id} className="border-t hover:bg-gray-50">
+                    <tr key={order._id} className={`border-t hover:bg-gray-50 ${selectedOrders.has(order._id) ? 'bg-blue-50' : ''}`}>
+                      <td className="px-4 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedOrders.has(order._id)}
+                          onChange={() => handleSelectOrder(order._id)}
+                          className="w-5 h-5 cursor-pointer"
+                        />
+                      </td>
                       <td className="px-6 py-4 text-sm font-medium">{order.orderNumber}</td>
                       <td className="px-6 py-4 text-sm">
                         <div className="font-medium">{order.userId?.name || 'N/A'}</div>
