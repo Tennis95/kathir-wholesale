@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { motion } from 'motion/react';
 import Link from 'next/link';
 
@@ -10,7 +9,6 @@ export const dynamic = 'force-dynamic';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -29,7 +27,23 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      const res = await fetch('/api/auth/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || 'Login failed');
+      }
+
+      const data = await res.json();
+      localStorage.setItem('kathir-admin-user', JSON.stringify(data.user));
+      localStorage.setItem('kathir-admin-token', data.token);
       router.push('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
