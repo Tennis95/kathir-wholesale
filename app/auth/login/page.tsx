@@ -239,6 +239,19 @@ export default function LoginPage() {
           <p className="text-center mt-4 text-xs text-gray-400">
             By signing in you agree to our Terms & Privacy Policy
           </p>
+
+          <div className="mt-6 pt-6 border-t">
+            <p className="text-center text-xs text-gray-500 mb-3">
+              Are you an admin?
+            </p>
+            <a
+              href="/auth/admin/login"
+              className="block w-full py-2 rounded-lg font-semibold text-center transition text-sm"
+              style={{ background: '#F3F4F6', color: '#1E5A7A', border: '2px solid #E5E7EB' }}
+            >
+              🛡️ Admin Login
+            </a>
+          </div>
         </motion.div>
       </div>
     </div>
