@@ -58,7 +58,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Check password
-    const isPasswordCorrect = await adminUser.matchPassword(password);
+    let isPasswordCorrect = false;
+    try {
+      isPasswordCorrect = await adminUser.matchPassword(password);
+    } catch (passwordError: any) {
+      console.error('[Admin Auth] Password comparison error:', passwordError.message);
+      return NextResponse.json(
+        { message: 'Authentication error. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     if (!isPasswordCorrect) {
       console.warn('[Admin Auth] Invalid password for admin user:', email);
@@ -71,20 +80,35 @@ export async function POST(req: NextRequest) {
     console.log('[Admin Auth] ✅ Admin authenticated successfully:', email);
 
     // Update last login
-    adminUser.lastLogin = new Date();
-    await adminUser.save();
+    try {
+      adminUser.lastLogin = new Date();
+      await adminUser.save();
+      console.log('[Admin Auth] Last login updated for:', email);
+    } catch (saveError: any) {
+      console.error('[Admin Auth] Error saving login timestamp:', saveError.message);
+      // Continue anyway - this is not critical
+    }
 
     // Create JWT token
-    const token = jwt.sign(
-      {
-        userId: adminUser._id,
-        email: adminUser.email,
-        role: adminUser.role,
-        isAdmin: true
-      },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
-    );
+    let token: string;
+    try {
+      token = jwt.sign(
+        {
+          userId: adminUser._id,
+          email: adminUser.email,
+          role: adminUser.role,
+          isAdmin: true
+        },
+        process.env.JWT_SECRET || 'secret',
+        { expiresIn: '7d' }
+      );
+    } catch (jwtError: any) {
+      console.error('[Admin Auth] JWT signing error:', jwtError.message);
+      return NextResponse.json(
+        { message: 'Authentication error. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     // Set cookie
     const response = NextResponse.json(
