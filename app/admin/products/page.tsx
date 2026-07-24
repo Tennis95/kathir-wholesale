@@ -1,189 +1,93 @@
 'use client';
-
-export const dynamic = 'force-dynamic';
-import { useAuth } from '@/context/AuthContext';
+import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 
-interface Product {
-  _id: string;
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  size: string;
-  inStock: boolean;
-}
+export const dynamic = 'force-dynamic';
 
-export default function AdminProducts() {
-  const { user, isAuthenticated } = useAuth();
+export default function ProductsPage() {
+  const { isAdminAuthenticated } = useAdminAuth();
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      router.push('/auth/login');
-      return;
+    if (!isAdminAuthenticated) {
+      router.push('/auth/admin/login');
     }
+  }, [isAdminAuthenticated, router]);
 
-    fetchProducts();
-  }, [isAuthenticated, user?.role, router]);
+  if (!isAdminAuthenticated) return null;
 
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch('/api/admin/products');
-      const data = await res.json();
-      setProducts(data.products || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const products = [
+    { id: 1, name: 'Appam Idiyappam pathiri podi 1kg', sku: 'APP-001', category: 'Flours', stock: 45, price: '£12.99', status: 'active' },
+    { id: 2, name: 'Barnyard millet 1kg', sku: 'BAR-001', category: 'Grains', stock: 32, price: '£8.50', status: 'active' },
+    { id: 3, name: 'Premium Basmati Rice 5kg', sku: 'BAS-001', category: 'Rice', stock: 28, price: '£24.99', status: 'active' },
+    { id: 4, name: 'Organic Turmeric Powder 500g', sku: 'TUM-001', category: 'Spices', stock: 0, price: '£6.99', status: 'inactive' },
+  ];
 
-  const deleteProduct = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
-
-    try {
-      const res = await fetch(`/api/admin/products/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        setProducts(products.filter(p => p._id !== id));
-        alert('Product deleted successfully');
-      } else {
-        alert('Failed to delete product');
-      }
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Error deleting product');
-    }
-  };
-
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.id.includes(searchTerm)
+  const filtered = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (filterCategory === 'all' || p.category === filterCategory)
   );
 
-  if (!isAuthenticated || user?.role !== 'admin') {
-    return null;
-  }
-
   return (
-    <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-8 flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-4xl font-bold mb-2" style={{ color: '#1F2937' }}>
-              Manage Products
-            </h1>
-            <p className="text-gray-600">Total: {products.length} products</p>
-          </div>
-          <a
-            href="/admin/products/new"
-            className="px-6 py-3 rounded-lg font-bold text-white transition transform hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
-              boxShadow: '0 4px 12px rgba(45, 123, 168, 0.25)',
-            }}
-          >
-            ➕ Add Product
-          </a>
-        </motion.div>
-
-        <motion.div
-          className="mb-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <input
-            type="text"
-            placeholder="Search by name, category, or ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none"
-            style={{ borderColor: '#8FD3F4', color: '#333' }}
-          />
-        </motion.div>
-
-        <motion.div
-          className="bg-white rounded-2xl shadow-lg overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          {loading ? (
-            <div className="p-8 text-center text-gray-600">Loading products...</div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="p-8 text-center text-gray-600">No products found</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead style={{ background: '#F0F9FE', borderBottom: '2px solid #E8F4FB' }}>
-                  <tr>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>ID</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Name</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Category</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Price</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Stock</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Status</th>
-                    <th className="px-6 py-4 text-left font-bold" style={{ color: '#2D7BA8' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((product) => (
-                    <tr key={product._id} style={{ borderBottom: '1px solid #E8F4FB' }}>
-                      <td className="px-6 py-4 text-sm font-bold" style={{ color: '#2D7BA8' }}>
-                        {product.id}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium">{product.name}</td>
-                      <td className="px-6 py-4 text-sm">{product.category}</td>
-                      <td className="px-6 py-4 text-sm font-bold">£{(product.price || 0).toFixed(2)}</td>
-                      <td className="px-6 py-4 text-sm">{product.stock} units</td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          product.inStock ? 'text-green-700' : 'text-red-700'
-                        }`}
-                        style={{
-                          background: product.inStock ? '#D1FAE5' : '#FEE2E2'
-                        }}>
-                          {product.inStock ? '✓ In Stock' : '✗ Out'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm space-x-2">
-                        <a
-                          href={`/admin/products/${product._id}`}
-                          className="inline-block px-3 py-1 rounded text-white text-xs font-bold"
-                          style={{ background: '#2D7BA8' }}
-                        >
-                          Edit
-                        </a>
-                        <button
-                          onClick={() => deleteProduct(product._id)}
-                          className="px-3 py-1 rounded text-white text-xs font-bold"
-                          style={{ background: '#DC2626' }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+    <div className="min-h-screen" style={{ background: '#F9FAFB' }}>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <Link href="/admin" className="text-blue-600 text-sm hover:underline">← Back to Dashboard</Link>
+              <h1 className="text-2xl font-bold mt-2" style={{ color: '#1F2937' }}>Products</h1>
             </div>
-          )}
+            <Link href="/admin/products/new">
+              <button className="px-4 py-2 rounded-lg text-white font-medium" style={{ background: '#2D7BA8' }}>+ Add Product</button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <input type="text" placeholder="Search products..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-gray-300 mb-4" />
+          <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="w-full px-4 py-2 rounded-lg border border-gray-300">
+            <option value="all">All Categories</option>
+            <option value="Flours">Flours</option>
+            <option value="Grains">Grains</option>
+            <option value="Rice">Rice</option>
+            <option value="Spices">Spices</option>
+          </select>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead style={{ background: '#F3F4F6' }}>
+                <tr>
+                  <th className="px-6 py-4 text-left text-sm font-bold">Name</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold">SKU</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold">Category</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold">Stock</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold">Price</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((p) => (
+                  <tr key={p.id} className="border-t hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm font-medium">{p.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{p.sku}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{p.category}</td>
+                    <td className="px-6 py-4 text-sm" style={{ color: p.stock === 0 ? '#DC2626' : p.stock < 20 ? '#B45309' : '#059669' }}>{p.stock}</td>
+                    <td className="px-6 py-4 text-sm font-medium">{p.price}</td>
+                    <td className="px-6 py-4 text-center text-sm"><button className="text-blue-600 hover:underline mr-3">Edit</button><button className="text-red-600 hover:underline">Delete</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </motion.div>
       </div>
     </div>
