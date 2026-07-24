@@ -19,35 +19,48 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ orde
       );
     }
 
-    // Format invoice data
+    // Format invoice data to match invoice page expectations
     const invoiceData = {
-      invoiceNumber: order._id.toString().substring(0, 8).toUpperCase(),
-      orderNumber: order.orderNumber,
-      orderDate: order.createdAt,
-      status: order.status,
-      paymentStatus: order.paymentStatus,
+      orderId: order.orderNumber,
+      invoiceNo: order._id.toString().substring(0, 8).toUpperCase(),
+      fullName: order.userId?.name || 'N/A',
+      companyName: order.userId?.companyName || '',
+      email: order.userId?.email || 'N/A',
+      mobile: order.userId?.phone || 'N/A',
 
-      customer: {
-        name: order.userId?.name || 'N/A',
-        email: order.userId?.email || 'N/A',
-        phone: order.userId?.phone || 'N/A',
+      deliveryAddress: {
+        addressLine1: order.shippingAddress?.street || '',
+        addressLine2: '',
+        city: order.shippingAddress?.city || '',
+        county: order.shippingAddress?.state || '',
+        postcode: order.shippingAddress?.zipCode || '',
+        country: order.shippingAddress?.country || 'UK',
       },
 
-      shippingAddress: order.shippingAddress,
-      billingAddress: order.billingAddress || order.shippingAddress,
-
       items: order.items.map((item: any) => ({
-        name: item.name,
-        size: item.size,
+        product: {
+          id: item.productId?.toString() || item.name,
+          name: item.name,
+          category: 'General',
+          size: item.size || '',
+          price: 14.99,
+          stock: 999,
+          inStock: true,
+        },
         quantity: item.quantity,
-        price: 14.99, // Default price, ideally would fetch from product
+        price: 14.99,
       })),
 
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      total: order.total,
+      totalItems: order.items.reduce((sum: number, item: any) => sum + item.quantity, 0),
+      subtotal: order.subtotal || 0,
+      vat: order.tax || 0,
+      totalAmount: order.total || 0,
 
+      status: order.status?.charAt(0).toUpperCase() + order.status?.slice(1).toLowerCase(),
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+
+      termsConfirmed: true,
       trackingNumber: order.trackingNumber,
       estimatedDelivery: order.estimatedDelivery,
       notes: order.notes,
