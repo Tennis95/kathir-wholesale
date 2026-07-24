@@ -72,7 +72,7 @@ function InvoiceContent() {
   useEffect(() => {
     if (!orderId) return;
 
-    fetch(`/api/orders/${encodeURIComponent(orderId)}`)
+    fetch(`/api/invoices/${encodeURIComponent(orderId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
