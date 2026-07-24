@@ -31,19 +31,20 @@ export async function GET(
   try {
     const { id } = await params;
     await connectDB();
-    const product = await Product.findById(id);
+    const product = await Product.findOne({ id });
 
     if (!product) {
       return NextResponse.json(
-        { message: 'Product not found' },
+        { success: false, message: 'Product not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ product }, { status: 200 });
+    return NextResponse.json({ success: true, data: product }, { status: 200 });
   } catch (error: any) {
+    console.error('[Admin Products GET]', error);
     return NextResponse.json(
-      { message: error.message || 'Error fetching product' },
+      { success: false, message: error.message || 'Error fetching product' },
       { status: 500 }
     );
   }

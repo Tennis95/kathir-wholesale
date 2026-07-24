@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface AdminUser {
   id: string;
@@ -16,35 +16,71 @@ interface AdminAuthContextType {
   isAdminAuthenticated: boolean;
   isLoading: boolean;
   logout: () => void;
+  setAdminAuth: (user: AdminUser | null, token: string | null) => void;
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
-  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
-  const [adminToken, setAdminToken] = useState<string | null>(null);
+export function AdminAuthProvider({ children }: { children: ReactNode }) {
+  const [adminUser, setAdminUserState] = useState<AdminUser | null>(null);
+  const [adminToken, setAdminTokenState] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
+  // Initialize from localStorage on mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('kathir-admin-user');
-    const savedToken = localStorage.getItem('kathir-admin-token');
-
-    if (savedUser && savedToken) {
+    const initializeAuth = () => {
       try {
-        setAdminUser(JSON.parse(savedUser));
-        setAdminToken(savedToken);
-      } catch (error) {
-        console.error('Failed to parse admin user:', error);
-        localStorage.removeItem('kathir-admin-user');
-        localStorage.removeItem('kathir-admin-token');
+        if (typeof window === 'undefined') {
+          setIsInitialized(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const savedUser = localStorage.getItem('kathir-admin-user');
+        const savedToken = localStorage.getItem('kathir-admin-token');
+
+        if (savedUser && savedToken) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            setAdminUserState(parsedUser);
+            setAdminTokenState(savedToken);
+          } catch (error) {
+            console.error('Failed to parse admin user:', error);
+            localStorage.removeItem('kathir-admin-user');
+            localStorage.removeItem('kathir-admin-token');
+            setAdminUserState(null);
+            setAdminTokenState(null);
+          }
+        } else {
+          setAdminUserState(null);
+          setAdminTokenState(null);
+        }
+      } finally {
+        setIsInitialized(true);
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
+  const setAdminAuth = (user: AdminUser | null, token: string | null) => {
+    setAdminUserState(user);
+    setAdminTokenState(token);
+
+    if (user && token) {
+      localStorage.setItem('kathir-admin-user', JSON.stringify(user));
+      localStorage.setItem('kathir-admin-token', token);
+    } else {
+      localStorage.removeItem('kathir-admin-user');
+      localStorage.removeItem('kathir-admin-token');
+    }
+  };
+
   const logout = () => {
-    setAdminUser(null);
-    setAdminToken(null);
+    setAdminUserState(null);
+    setAdminTokenState(null);
     localStorage.removeItem('kathir-admin-user');
     localStorage.removeItem('kathir-admin-token');
   };
@@ -54,9 +90,10 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         adminUser,
         adminToken,
-        isAdminAuthenticated: !!adminUser,
-        isLoading,
+        isAdminAuthenticated: !!adminUser && !!adminToken,
+        isLoading: !isInitialized,
         logout,
+        setAdminAuth,
       }}
     >
       {children}
