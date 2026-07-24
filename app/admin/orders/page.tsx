@@ -635,16 +635,34 @@ export default function OrdersPage() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-xl max-w-md w-full p-6"
+            className="bg-white rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
           >
-            <h2 className="text-xl font-bold mb-4">Update Order Status</h2>
+            <h2 className="text-xl font-bold mb-4">Order Details & Update Status</h2>
 
-            <div className="mb-6">
-              <p className="text-sm text-gray-600">Order ID: {selectedOrder.orderNumber}</p>
-              <p className="text-sm text-gray-600">Customer: {selectedOrder.userId?.name}</p>
-              <p className="text-sm text-gray-600">Total: £{selectedOrder.total?.toFixed(2)}</p>
-              <p className="text-sm text-gray-600 mt-2">Current Status: {selectedOrder.status}</p>
+            <div className="mb-6 pb-4 border-b">
+              <p className="text-sm text-gray-600"><strong>Order ID:</strong> {selectedOrder.orderNumber}</p>
+              <p className="text-sm text-gray-600"><strong>Customer:</strong> {selectedOrder.userId?.name}</p>
+              <p className="text-sm text-gray-600"><strong>Email:</strong> {selectedOrder.userId?.email}</p>
+              <p className="text-sm text-gray-600"><strong>Total:</strong> £{selectedOrder.total?.toFixed(2)}</p>
+              <p className="text-sm text-gray-600 mt-2"><strong>Current Status:</strong> {selectedOrder.status?.charAt(0).toUpperCase() + selectedOrder.status?.slice(1)}</p>
             </div>
+
+            {/* Products Section */}
+            {selectedOrder.items && selectedOrder.items.length > 0 && (
+              <div className="mb-6 pb-4 border-b">
+                <h3 className="text-sm font-bold mb-3 text-gray-800">Order Items ({selectedOrder.items.length})</h3>
+                <div className="space-y-3">
+                  {selectedOrder.items.map((item: any, index: number) => (
+                    <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                      {item.size && <p className="text-xs text-gray-600">Size: {item.size}</p>}
+                      {item.quantity && <p className="text-xs text-gray-600">Quantity: {item.quantity}</p>}
+                      {item.price && <p className="text-xs text-gray-600">Price: £{item.price.toFixed(2)}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
