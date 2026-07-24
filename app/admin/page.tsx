@@ -11,7 +11,7 @@ export default function AdminDashboard() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  const isAdmin = isAuthenticated && ['admin', 'super_admin', 'manager', 'finance'].includes(user?.role);
+  const isAdmin = isAuthenticated && user?.role && ['admin', 'super_admin', 'manager', 'finance'].includes(user.role);
 
   useEffect(() => {
     if (!isAdmin) {
