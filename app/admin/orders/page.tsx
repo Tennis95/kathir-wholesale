@@ -29,7 +29,7 @@ export default function OrdersPage() {
 
   const filtered = orders.filter(o => filterStatus === 'all' || o.status === filterStatus);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch(status) {
       case 'delivered': return 'bg-green-100 text-green-800';
       case 'shipped': return 'bg-blue-100 text-blue-800';
