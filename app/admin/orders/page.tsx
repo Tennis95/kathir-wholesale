@@ -165,9 +165,17 @@ export default function AdminOrders() {
                       </td>
                       <td className="px-6 py-4 text-sm">{order.paymentStatus}</td>
                       <td className="px-6 py-4 text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex gap-2">
                         <a href={`/admin/orders/${order._id}`} className="text-blue-600 hover:underline text-sm font-bold">
                           Edit
+                        </a>
+                        <a
+                          href={`/invoice?orderId=${order._id}&autoprint=0`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:underline text-sm font-bold"
+                        >
+                          📄 Invoice
                         </a>
                       </td>
                     </tr>
