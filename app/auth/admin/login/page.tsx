@@ -147,10 +147,9 @@ export default function AdminLoginPage() {
                 onChange={handleChange}
                 placeholder="admin@kathir.co.uk"
                 required
-                className="w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none"
+                className="w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none focus:border-blue-600"
                 style={{
-                  borderColor: '#E5E7EB',
-                  '&:focus': { borderColor: '#2D7BA8' }
+                  borderColor: '#E5E7EB'
                 }}
               />
             </div>
@@ -171,10 +170,9 @@ export default function AdminLoginPage() {
                 onChange={handleChange}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none"
+                className="w-full px-4 py-3 rounded-lg border-2 transition focus:outline-none focus:border-blue-600"
                 style={{
-                  borderColor: '#E5E7EB',
-                  '&:focus': { borderColor: '#2D7BA8' }
+                  borderColor: '#E5E7EB'
                 }}
               />
             </div>
