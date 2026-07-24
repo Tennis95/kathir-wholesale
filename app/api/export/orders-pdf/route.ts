@@ -60,10 +60,10 @@ export async function GET(req: NextRequest) {
     console.log(`[Export Orders PDF] ✅ Fetched ${orders.length} orders`);
 
     // Generate PDF
-    const pdf = generateOrdersPDF(orders);
+    const pdfArrayBuffer = generateOrdersPDF(orders);
 
     // Return PDF
-    return new NextResponse(pdf, {
+    return new NextResponse(pdfArrayBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -192,6 +192,6 @@ function generateOrdersPDF(orders: any[]): Buffer {
   doc.text('KATHIR LTD - Wholesale Grocery Supplier', margin, yPosition);
   doc.text(`Page ${doc.internal.pages.length - 1}`, pageWidth - margin - 20, yPosition);
 
-  // Return PDF as buffer
-  return Buffer.from(doc.output('arraybuffer'));
+  // Return PDF as Uint8Array
+  return new Uint8Array(doc.output('arraybuffer'));
 }
