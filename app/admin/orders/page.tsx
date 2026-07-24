@@ -220,6 +220,50 @@ export default function OrdersPage() {
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      setIsExporting(true);
+
+      const query = new URLSearchParams({
+        status: statusFilter,
+        format: 'pdf',
+      });
+
+      if (dateFrom) query.append('dateFrom', dateFrom);
+      if (dateTo) query.append('dateTo', dateTo);
+      if (minAmount) query.append('minAmount', minAmount);
+      if (maxAmount) query.append('maxAmount', maxAmount);
+
+      const res = await fetch(`/api/export/orders-pdf?${query}`);
+      if (!res.ok) throw new Error('Failed to export PDF');
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_report_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: 'PDF report exported successfully',
+        duration: 3000,
+      });
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to export PDF',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleResetFilters = () => {
     setStatusFilter('all');
     setDateFrom('');
@@ -311,6 +355,13 @@ export default function OrdersPage() {
               className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
             >
               {isExporting ? '📥 Exporting...' : '📥 Export CSV'}
+            </button>
+            <button
+              onClick={handleExportPDF}
+              disabled={isExporting || orders.length === 0}
+              className="px-4 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 disabled:opacity-50"
+            >
+              {isExporting ? '📄 Generating...' : '📄 Export PDF'}
             </button>
           </div>
 
