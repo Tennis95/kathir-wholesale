@@ -81,7 +81,7 @@ export default function OrdersPage() {
         },
       });
 
-      if (!res.status === 401) {
+      if (res.status === 401) {
         router.push('/auth/admin/login');
         return;
       }
