@@ -1,4 +1,8 @@
+import { connectDB } from '@/lib/mongodb';
+import AdminUser from '@/lib/models/AdminUser';
+import { sendPasswordResetEmail } from '@/lib/adminEmailService';
 import { NextRequest, NextResponse } from 'next/server';
+import { sanitizeEmail } from '@/lib/sanitize';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,26 +15,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In production, you would:
-    // 1. Check if admin user exists in database
-    // 2. Generate reset token
-    // 3. Save token with expiration (24 hours)
-    // 4. Send email with reset link containing token
-    // 5. Return success response
+    // Sanitize email
+    const sanitizedEmail = sanitizeEmail(email);
 
-    // For now, return success response
-    // Email sending would be configured with Nodemailer, SendGrid, or similar
+    // Connect to database
+    await connectDB();
+
+    // Find admin user
+    const adminUser = await AdminUser.findOne({ email: sanitizedEmail });
+
+    if (!adminUser) {
+      // Don't reveal if email exists for security reasons
+      return NextResponse.json(
+        { message: 'If an admin account with this email exists, a password reset link will be sent.' },
+        { status: 200 }
+      );
+    }
+
+    // Generate reset token
+    const resetToken = adminUser.generatePasswordResetToken();
+    await adminUser.save();
+
+    // Send reset email
+    await sendPasswordResetEmail(sanitizedEmail, resetToken);
+
+    console.log(`✅ Password reset email sent to ${sanitizedEmail}`);
+
     return NextResponse.json(
       {
-        message: 'Password reset link sent to email',
-        email,
+        message: 'Password reset link sent to your email address. Please check your inbox.',
+        email: sanitizedEmail,
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Forgot password error:', error);
+  } catch (error: any) {
+    console.error('❌ Forgot password error:', error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: error.message || 'Internal server error' },
       { status: 500 }
     );
   }

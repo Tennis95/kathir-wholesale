@@ -1,4 +1,7 @@
+import { connectDB } from '@/lib/mongodb';
+import AdminUser from '@/lib/models/AdminUser';
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,24 +28,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // In production, you would:
-    // 1. Verify the reset token
-    // 2. Check if token is expired
-    // 3. Hash the new password
-    // 4. Update user password in database
-    // 5. Invalidate all existing reset tokens for this user
+    // Connect to database
+    await connectDB();
+
+    // Hash the reset token to match what's stored in DB
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Find admin user with valid reset token
+    const adminUser = await AdminUser.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpiry: { $gt: Date.now() },
+    });
+
+    if (!adminUser) {
+      return NextResponse.json(
+        { message: 'Invalid or expired reset token. Please request a new password reset.' },
+        { status: 400 }
+      );
+    }
+
+    // Update password
+    adminUser.password = password;
+    adminUser.passwordResetToken = undefined;
+    adminUser.passwordResetExpiry = undefined;
+    await adminUser.save();
+
+    console.log(`✅ Password reset successfully for ${adminUser.email}`);
 
     return NextResponse.json(
       {
-        message: 'Password reset successfully',
+        message: 'Password reset successfully. You can now login with your new password.',
         redirect: '/auth/admin/login',
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error('Reset password error:', error);
+  } catch (error: any) {
+    console.error('❌ Reset password error:', error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
