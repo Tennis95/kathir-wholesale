@@ -2,7 +2,7 @@
 import { useAdminAuth } from '@/context/AdminAuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import { motion } from 'motion/react';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,7 @@ export default function NewProductPage() {
 
   if (!isAdminAuthenticated) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
@@ -78,7 +78,7 @@ export default function NewProductPage() {
 
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea className="w-full px-4 py-2 rounded-lg border border-gray-300" rows="4" placeholder="Product description..."></textarea>
+            <textarea className="w-full px-4 py-2 rounded-lg border border-gray-300" rows={4} placeholder="Product description..."></textarea>
           </div>
 
           <div className="flex gap-4">
