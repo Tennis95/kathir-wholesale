@@ -60,10 +60,11 @@ export async function GET(req: NextRequest) {
     console.log(`[Export Orders PDF] ✅ Fetched ${orders.length} orders`);
 
     // Generate PDF
-    const pdfArrayBuffer = generateOrdersPDF(orders);
+    const pdfBuffer = generateOrdersPDF(orders);
+    const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
 
     // Return PDF
-    return new NextResponse(pdfArrayBuffer, {
+    return new NextResponse(pdfBlob, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-function generateOrdersPDF(orders: any[]): Buffer {
+function generateOrdersPDF(orders: any[]): Uint8Array {
   const doc = new jsPDF();
   const pageHeight = doc.internal.pageSize.getHeight();
   const pageWidth = doc.internal.pageSize.getWidth();
