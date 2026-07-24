@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
-import Order from "@/lib/models/Order";
+import User from "@/lib/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
@@ -28,25 +28,31 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = verifyAdminToken(req);
+    if (!auth.valid) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     await connectDB();
 
-    const order = await Order.findById(id)
-      .populate("userId")
-      .populate("items.productId");
+    const user = await User.findById(id).select("-password");
 
-    if (!order) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, message: "Order not found" },
+        { success: false, message: "User not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: order }, { status: 200 });
+    return NextResponse.json({ success: true, data: user }, { status: 200 });
   } catch (error: any) {
-    console.error("[Admin Order GET]", error);
+    console.error("[Admin User GET]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Error fetching order" },
+      { success: false, message: error.message || "Error fetching user" },
       { status: 500 }
     );
   }
@@ -69,35 +75,22 @@ export async function PUT(
     await connectDB();
 
     const body = await req.json();
-    const { status, paymentStatus, trackingNumber, notes, estimatedDelivery } =
-      body;
-
-    const validStatuses = [
-      "pending",
-      "processing",
-      "shipped",
-      "delivered",
-      "cancelled",
-    ];
-    if (status && !validStatuses.includes(status)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid status" },
-        { status: 400 }
-      );
-    }
+    const { isActive, name, email, phone, address } = body;
 
     const updateData: any = {};
-    if (status) updateData.status = status;
-    if (paymentStatus) updateData.paymentStatus = paymentStatus;
-    if (trackingNumber) updateData.trackingNumber = trackingNumber;
-    if (notes) updateData.notes = notes;
-    if (estimatedDelivery) updateData.estimatedDelivery = estimatedDelivery;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    if (address) updateData.address = address;
 
-    const order = await Order.findByIdAndUpdate(id, updateData, { new: true });
+    const user = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+    }).select("-password");
 
-    if (!order) {
+    if (!user) {
       return NextResponse.json(
-        { success: false, message: "Order not found" },
+        { success: false, message: "User not found" },
         { status: 404 }
       );
     }
@@ -105,15 +98,15 @@ export async function PUT(
     return NextResponse.json(
       {
         success: true,
-        message: "Order updated successfully",
-        data: order,
+        message: "User updated successfully",
+        data: user,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("[Admin Order PUT]", error);
+    console.error("[Admin User PUT]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Error updating order" },
+      { success: false, message: error.message || "Error updating user" },
       { status: 500 }
     );
   }

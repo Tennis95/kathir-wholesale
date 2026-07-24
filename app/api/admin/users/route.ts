@@ -1,4 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
+import User from "@/lib/models/User";
 import Order from "@/lib/models/Order";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
@@ -40,26 +41,39 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
 
-    const query: any = {};
-    if (status && status !== "all") {
-      query.status = status;
+    const query: any = { role: "customer" };
+    if (status === "active") {
+      query.isActive = true;
+    } else if (status === "inactive") {
+      query.isActive = false;
     }
 
     const skip = (page - 1) * limit;
 
-    const orders = await Order.find(query)
-      .populate("userId", "name email phone")
+    const users = await User.find(query)
+      .select("-password")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    const total = await Order.countDocuments(query);
+    // Get order count for each user
+    const usersWithOrders = await Promise.all(
+      users.map(async (user: any) => {
+        const orderCount = await Order.countDocuments({ userId: user._id });
+        return {
+          ...user,
+          orderCount,
+        };
+      })
+    );
+
+    const total = await User.countDocuments(query);
 
     return NextResponse.json(
       {
         success: true,
-        data: orders,
+        data: usersWithOrders,
         pagination: {
           total,
           page,
@@ -70,9 +84,9 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("[Admin Orders GET]", error);
+    console.error("[Admin Users GET]", error);
     return NextResponse.json(
-      { success: false, message: error.message || "Error fetching orders" },
+      { success: false, message: error.message || "Error fetching users" },
       { status: 500 }
     );
   }

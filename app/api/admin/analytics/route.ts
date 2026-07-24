@@ -1,23 +1,25 @@
-import { connectDB } from '@/lib/mongodb';
-import Order from '@/lib/models/Order';
-import User from '@/lib/models/User';
-import Product from '@/lib/models/Product';
-import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { connectDB } from "@/lib/mongodb";
+import Order from "@/lib/models/Order";
+import Product from "@/lib/models/Product";
+import User from "@/lib/models/User";
+import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
-async function verifyAdmin(req: NextRequest) {
+function verifyAdminToken(req: NextRequest) {
   try {
-    const token = req.cookies.get('authToken')?.value;
-    if (!token) return { valid: false, user: null };
-
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-    const user = await User.findById(decoded.userId);
-
-    if (!user || user.role !== 'admin') {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return { valid: false, user: null };
     }
 
-    return { valid: true, user };
+    const token = authHeader.substring(7);
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || "secret");
+
+    if (!decoded.isAdmin) {
+      return { valid: false, user: null };
+    }
+
+    return { valid: true, user: decoded };
   } catch {
     return { valid: false, user: null };
   }
@@ -25,114 +27,136 @@ async function verifyAdmin(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const auth = await verifyAdmin(req);
+    const auth = verifyAdminToken(req);
     if (!auth.valid) {
-      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
     await connectDB();
 
-    // Get all data
-    const orders = await Order.find();
-    const users = await User.find();
-    const products = await Product.find();
+    const { searchParams } = new URL(req.url);
+    const dateRange = searchParams.get("dateRange") || "30days";
 
-    // Calculate statistics
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
-    const totalCustomers = users.filter(u => u.role === 'customer').length;
-    const totalProducts = products.length;
+    // Calculate date range
+    let startDate = new Date();
+    if (dateRange === "7days") {
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (dateRange === "30days") {
+      startDate.setDate(startDate.getDate() - 30);
+    } else if (dateRange === "90days") {
+      startDate.setDate(startDate.getDate() - 90);
+    }
 
-    // Order status breakdown
-    const ordersByStatus = {
-      pending: orders.filter(o => o.status === 'pending').length,
-      processing: orders.filter(o => o.status === 'processing').length,
-      shipped: orders.filter(o => o.status === 'shipped').length,
-      delivered: orders.filter(o => o.status === 'delivered').length,
-    };
+    // Key metrics
+    const totalRevenue = await Order.aggregate([
+      { $match: { status: "delivered" } },
+      { $group: { _id: null, total: { $sum: "$total" } } },
+    ]);
 
-    // Payment status breakdown
-    const paymentStatus = {
-      pending: orders.filter(o => o.paymentStatus === 'pending').length,
-      completed: orders.filter(o => o.paymentStatus === 'completed').length,
-      failed: orders.filter(o => o.paymentStatus === 'failed').length,
-    };
+    const totalOrders = await Order.countDocuments({});
 
-    // Revenue by status
-    const revenueByStatus = {
-      pending: orders.filter(o => o.status === 'pending').reduce((sum, o) => sum + o.total, 0),
-      processing: orders.filter(o => o.status === 'processing').reduce((sum, o) => sum + o.total, 0),
-      shipped: orders.filter(o => o.status === 'shipped').reduce((sum, o) => sum + o.total, 0),
-      delivered: orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + o.total, 0),
-    };
+    const ordersByStatus = await Order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
-    // Stock levels
-    const lowStockProducts = products.filter(p => p.stock < 10).length;
-    const outOfStock = products.filter(p => p.stock === 0).length;
-    const totalStockValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
-
-    // Top categories
-    const categoryRevenue: Record<string, number> = {};
-    orders.forEach(order => {
-      order.items?.forEach((item: any) => {
-        if (!categoryRevenue[item.category]) {
-          categoryRevenue[item.category] = 0;
-        }
-        categoryRevenue[item.category] += item.price * item.quantity;
-      });
+    const totalCustomers = await User.countDocuments({ role: "customer" });
+    const activeCustomers = await User.countDocuments({
+      role: "customer",
+      isActive: true,
+    });
+    const inactiveCustomers = await User.countDocuments({
+      role: "customer",
+      isActive: false,
     });
 
-    // Recent orders
-    const recentOrders = orders.slice(-10).sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const totalProducts = await Product.countDocuments({});
+    const lowStockProducts = await Product.countDocuments({ stock: { $lt: 20 } });
+    const outOfStockProducts = await Product.countDocuments({ stock: 0 });
 
-    // Average order value
-    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    // Revenue trend (last 30 days by day)
+    const revenueTrend = await Order.aggregate([
+      {
+        $match: {
+          status: "delivered",
+          createdAt: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          revenue: { $sum: "$total" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
 
-    // Daily revenue (last 30 days)
-    const dailyRevenue: Record<string, number> = {};
-    const last30Days = new Date();
-    last30Days.setDate(last30Days.getDate() - 30);
+    // Top selling products
+    const topProducts = await Order.aggregate([
+      { $match: { status: "delivered" } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.name",
+          quantity: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.quantity", 10] } },
+        },
+      },
+      { $sort: { quantity: -1 } },
+      { $limit: 10 },
+    ]);
 
-    orders.forEach(order => {
-      const date = new Date(order.createdAt);
-      if (date >= last30Days) {
-        const dateKey = date.toISOString().split('T')[0];
-        if (!dailyRevenue[dateKey]) {
-          dailyRevenue[dateKey] = 0;
-        }
-        dailyRevenue[dateKey] += order.total;
-      }
-    });
+    // Revenue by category
+    const revenueByCategory = await Product.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 },
+          avgPrice: { $avg: "$price" },
+        },
+      },
+      { $sort: { count: -1 } },
+    ]);
 
-    return NextResponse.json({
-      summary: {
-        totalOrders,
-        totalRevenue: totalRevenue.toFixed(2),
-        totalCustomers,
-        totalProducts,
-        avgOrderValue: avgOrderValue.toFixed(2),
-      },
-      orders: {
-        byStatus: ordersByStatus,
-        paymentStatus,
-        revenueByStatus,
-      },
-      inventory: {
-        lowStockCount: lowStockProducts,
-        outOfStockCount: outOfStock,
-        totalStockValue: totalStockValue.toFixed(2),
-      },
-      sales: {
-        categoryRevenue,
-        dailyRevenue,
-        recentOrders: recentOrders.slice(0, 5),
-      },
-    }, { status: 200 });
-  } catch (error: any) {
     return NextResponse.json(
-      { message: error.message || 'Error fetching analytics' },
+      {
+        success: true,
+        data: {
+          keyMetrics: {
+            totalRevenue: totalRevenue[0]?.total || 0,
+            totalOrders,
+            totalCustomers,
+            activeCustomers,
+            inactiveCustomers,
+            totalProducts,
+            lowStockProducts,
+            outOfStockProducts,
+          },
+          ordersByStatus: ordersByStatus.reduce((acc: any, item: any) => {
+            acc[item._id] = item.count;
+            return acc;
+          }, {}),
+          revenueTrend,
+          topProducts,
+          revenueByCategory,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("[Admin Analytics]", error);
+    return NextResponse.json(
+      { success: false, message: error.message || "Error fetching analytics" },
       { status: 500 }
     );
   }
