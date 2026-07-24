@@ -26,6 +26,11 @@ export default function OrdersPage() {
   const [bulkStatus, setBulkStatus] = useState('');
   const [isPerformingBulkUpdate, setIsPerformingBulkUpdate] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -37,7 +42,7 @@ export default function OrdersPage() {
     if (isAdminAuthenticated) {
       fetchOrders();
     }
-  }, [isAdminAuthenticated, statusFilter, page]);
+  }, [isAdminAuthenticated, statusFilter, page, dateFrom, dateTo, minAmount, maxAmount]);
 
   const fetchOrders = async () => {
     try {
@@ -47,6 +52,11 @@ export default function OrdersPage() {
         page: page.toString(),
         limit: '10',
       });
+
+      if (dateFrom) query.append('dateFrom', dateFrom);
+      if (dateTo) query.append('dateTo', dateTo);
+      if (minAmount) query.append('minAmount', minAmount);
+      if (maxAmount) query.append('maxAmount', maxAmount);
 
       const res = await fetch(`/api/admin/orders?${query}`, {
         headers: {
@@ -175,6 +185,11 @@ export default function OrdersPage() {
         format: 'csv',
       });
 
+      if (dateFrom) query.append('dateFrom', dateFrom);
+      if (dateTo) query.append('dateTo', dateTo);
+      if (minAmount) query.append('minAmount', minAmount);
+      if (maxAmount) query.append('maxAmount', maxAmount);
+
       const res = await fetch(`/api/export/orders?${query}`);
       if (!res.ok) throw new Error('Failed to export orders');
 
@@ -204,6 +219,18 @@ export default function OrdersPage() {
       setIsExporting(false);
     }
   };
+
+  const handleResetFilters = () => {
+    setStatusFilter('all');
+    setDateFrom('');
+    setDateTo('');
+    setMinAmount('');
+    setMaxAmount('');
+    setPage(1);
+    setShowAdvancedFilters(false);
+  };
+
+  const hasActiveFilters = statusFilter !== 'all' || dateFrom || dateTo || minAmount || maxAmount;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -247,7 +274,7 @@ export default function OrdersPage() {
           animate={{ opacity: 1 }}
           className="bg-white rounded-xl border border-gray-200 p-6 mb-8"
         >
-          <div className="flex gap-4 items-end">
+          <div className="flex gap-4 items-end mb-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Filter by Status
@@ -269,6 +296,16 @@ export default function OrdersPage() {
               </select>
             </div>
             <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className={`px-4 py-2 rounded-lg font-medium ${
+                showAdvancedFilters
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+              }`}
+            >
+              ⚙️ Advanced
+            </button>
+            <button
               onClick={handleExport}
               disabled={isExporting || orders.length === 0}
               className="px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-50"
@@ -276,6 +313,85 @@ export default function OrdersPage() {
               {isExporting ? '📥 Exporting...' : '📥 Export CSV'}
             </button>
           </div>
+
+          {hasActiveFilters && (
+            <div className="mb-4 flex items-center gap-2">
+              <span className="text-xs font-medium text-gray-600">Filters active:</span>
+              <button
+                onClick={handleResetFilters}
+                className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+              >
+                Reset all filters
+              </button>
+            </div>
+          )}
+
+          {showAdvancedFilters && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="border-t pt-4 grid grid-cols-2 md:grid-cols-4 gap-4"
+            >
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Date From
+                </label>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => {
+                    setDateFrom(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Date To
+                </label>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => {
+                    setDateTo(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Min Amount (£)
+                </label>
+                <input
+                  type="number"
+                  value={minAmount}
+                  onChange={(e) => {
+                    setMinAmount(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="0.00"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">
+                  Max Amount (£)
+                </label>
+                <input
+                  type="number"
+                  value={maxAmount}
+                  onChange={(e) => {
+                    setMaxAmount(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="999999.00"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm"
+                />
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {selectedOrders.size > 0 && (
