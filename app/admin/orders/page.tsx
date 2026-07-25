@@ -33,6 +33,9 @@ export default function OrdersPage() {
   const [maxAmount, setMaxAmount] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [amountError, setAmountError] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState<string>('');
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+  const [priceReason, setPriceReason] = useState('');
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -136,6 +139,57 @@ export default function OrdersPage() {
       });
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const handleSendInvoice = async (orderId: string) => {
+    if (!editPrice) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: 'Please enter a price',
+      });
+      return;
+    }
+
+    try {
+      setIsSendingInvoice(true);
+
+      const res = await fetch('/api/admin/generate-invoice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({
+          orderId,
+          price: parseFloat(editPrice),
+          reason: priceReason,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to send invoice');
+
+      addNotification({
+        type: 'success',
+        title: 'Success',
+        message: 'Invoice generated and sent to customer successfully!',
+        duration: 4000,
+      });
+
+      setSelectedOrder(null);
+      setEditPrice('');
+      setPriceReason('');
+      fetchOrders();
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Error',
+        message: err.message || 'Failed to send invoice',
+      });
+    } finally {
+      setIsSendingInvoice(false);
     }
   };
 
@@ -593,6 +647,8 @@ export default function OrdersPage() {
                           onClick={() => {
                             setSelectedOrder(order);
                             setNewStatus(order.status);
+                            setEditPrice(order.total?.toString() || '');
+                            setPriceReason('');
                           }}
                           className="text-blue-600 hover:underline text-sm font-medium"
                         >
@@ -664,9 +720,53 @@ export default function OrdersPage() {
               </div>
             )}
 
+            {/* Price Entry Section for Invoice */}
+            <div className="mb-6 pb-4 border-b">
+              <h3 className="text-sm font-bold mb-3 text-gray-800">💰 Set Final Price & Send Invoice</h3>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Final Price (£)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  placeholder={selectedOrder.total?.toFixed(2) || '0.00'}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason for Price (Optional)
+                </label>
+                <textarea
+                  value={priceReason}
+                  onChange={(e) => setPriceReason(e.target.value)}
+                  placeholder="e.g., Bulk discount applied, Quantity adjustment..."
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 text-sm resize-none"
+                  rows={2}
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  if (editPrice) {
+                    handleSendInvoice(selectedOrder._id);
+                  }
+                }}
+                disabled={isSendingInvoice || !editPrice}
+                className="w-full px-4 py-3 rounded-lg text-white font-bold bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {isSendingInvoice ? '📧 Sending Invoice...' : '📧 Generate & Send Invoice'}
+              </button>
+            </div>
+
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                New Status
+                Update Order Status
               </label>
               <select
                 value={newStatus}
@@ -684,9 +784,9 @@ export default function OrdersPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium"
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
               >
-                Cancel
+                Close
               </button>
               <button
                 onClick={() => handleStatusChange(selectedOrder._id, newStatus)}
