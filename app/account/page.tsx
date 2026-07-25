@@ -112,6 +112,20 @@ export default function AccountPage() {
     );
   }
 
+  if (user?.role === 'admin') {
+    return (
+      <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="flex items-center justify-center py-12 px-4">
+        <div className="text-center">
+          <p className="text-xl font-bold text-gray-800 mb-4">Admin Account</p>
+          <p className="text-gray-600 mb-6">Admin accounts don't have customer profiles. Please use the admin dashboard for admin functions.</p>
+          <a href="/admin/dashboard" className="px-6 py-3 rounded-lg text-white font-bold inline-block" style={{ background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)' }}>
+            Go to Admin Dashboard
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: 'linear-gradient(135deg, #E8F4FB 0%, #F0F9FE 100%)', minHeight: '100vh' }} className="py-12 px-4">
       <div className="max-w-6xl mx-auto">
