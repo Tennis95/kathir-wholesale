@@ -182,7 +182,7 @@ export default function SignupPage() {
                   </svg>
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}

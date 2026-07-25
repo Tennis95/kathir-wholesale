@@ -177,7 +177,7 @@ export default function AdminSignupPage() {
                 Email Address
               </label>
               <input
-                type="email"
+                type="text"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
