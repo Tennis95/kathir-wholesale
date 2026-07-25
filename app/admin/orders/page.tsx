@@ -812,7 +812,12 @@ export default function OrdersPage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => setSelectedOrder(null)}
+                onClick={() => {
+                  setSelectedOrder(null);
+                  setEditPrice('');
+                  setPriceReason('');
+                  setItemPrices({});
+                }}
                 className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50"
               >
                 Close
