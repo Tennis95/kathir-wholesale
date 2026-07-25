@@ -21,6 +21,7 @@ const orderSchema = new mongoose.Schema(
         name: String,
         quantity: Number,
         size: String,
+        price: Number,
       },
     ],
     subtotal: Number,
@@ -29,7 +30,7 @@ const orderSchema = new mongoose.Schema(
     total: Number,
     status: {
       type: String,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'invoice_sent'],
       default: 'pending',
     },
     paymentStatus: {

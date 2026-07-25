@@ -36,6 +36,7 @@ export default function OrdersPage() {
   const [editPrice, setEditPrice] = useState<string>('');
   const [isSendingInvoice, setIsSendingInvoice] = useState(false);
   const [priceReason, setPriceReason] = useState('');
+  const [itemPrices, setItemPrices] = useState<Record<number, string>>({});
 
   useEffect(() => {
     if (!authLoading && !isAdminAuthenticated) {
@@ -143,11 +144,12 @@ export default function OrdersPage() {
   };
 
   const handleSendInvoice = async (orderId: string) => {
-    if (!editPrice) {
+    const hasAnyPrice = Object.values(itemPrices).some(p => p && parseFloat(p) > 0);
+    if (!hasAnyPrice) {
       addNotification({
         type: 'error',
         title: 'Error',
-        message: 'Please enter a price',
+        message: 'Please enter at least one item price',
       });
       return;
     }
@@ -163,7 +165,7 @@ export default function OrdersPage() {
         },
         body: JSON.stringify({
           orderId,
-          price: parseFloat(editPrice),
+          itemPrices,
           reason: priceReason,
         }),
       });
@@ -181,6 +183,7 @@ export default function OrdersPage() {
       setSelectedOrder(null);
       setEditPrice('');
       setPriceReason('');
+      setItemPrices({});
       fetchOrders();
     } catch (err: any) {
       addNotification({
@@ -649,6 +652,11 @@ export default function OrdersPage() {
                             setNewStatus(order.status);
                             setEditPrice(order.total?.toString() || '');
                             setPriceReason('');
+                            const prices: Record<number, string> = {};
+                            order.items?.forEach((item: any, idx: number) => {
+                              prices[idx] = item.price?.toString() || '';
+                            });
+                            setItemPrices(prices);
                           }}
                           className="text-blue-600 hover:underline text-sm font-medium"
                         >
@@ -722,25 +730,45 @@ export default function OrdersPage() {
 
             {/* Price Entry Section for Invoice */}
             <div className="mb-6 pb-4 border-b">
-              <h3 className="text-sm font-bold mb-3 text-gray-800">💰 Set Final Price & Send Invoice</h3>
+              <h3 className="text-sm font-bold mb-3 text-gray-800">💰 Edit Item Prices & Send Invoice</h3>
+
+              {selectedOrder.items && selectedOrder.items.length > 0 && (
+                <div className="mb-4 space-y-3">
+                  {selectedOrder.items.map((item: any, index: number) => {
+                    const itemTotal = (parseFloat(itemPrices[index]) || 0) * (item.quantity || 1);
+                    return (
+                      <div key={index} className="bg-gray-50 p-3 rounded-lg">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">{item.name} × {item.quantity}</p>
+                        <div className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <label className="block text-xs font-medium text-gray-600 mb-1">Price per Unit (£)</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={itemPrices[index] || ''}
+                              onChange={(e) => setItemPrices({...itemPrices, [index]: e.target.value})}
+                              placeholder="0.00"
+                              className="w-full px-3 py-2 rounded border border-gray-300 text-sm focus:outline-none focus:border-blue-500"
+                            />
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-600">Total</p>
+                            <p className="text-sm font-bold text-gray-900">£{itemTotal.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <p className="text-xs text-gray-600">Order Total:</p>
+                    <p className="text-lg font-bold text-blue-600">£{Object.entries(itemPrices).reduce((sum, [idx, price]) => sum + (parseFloat(price) || 0) * (selectedOrder.items[parseInt(idx)]?.quantity || 1), 0).toFixed(2)}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Final Price (£)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
-                  placeholder={selectedOrder.total?.toFixed(2) || '0.00'}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Reason for Price (Optional)
+                  Reason for Price Changes (Optional)
                 </label>
                 <textarea
                   value={priceReason}
@@ -753,11 +781,12 @@ export default function OrdersPage() {
 
               <button
                 onClick={() => {
-                  if (editPrice) {
+                  const hasAnyPrice = Object.values(itemPrices).some(p => p && parseFloat(p) > 0);
+                  if (hasAnyPrice) {
                     handleSendInvoice(selectedOrder._id);
                   }
                 }}
-                disabled={isSendingInvoice || !editPrice}
+                disabled={isSendingInvoice || !Object.values(itemPrices).some(p => p && parseFloat(p) > 0)}
                 className="w-full px-4 py-3 rounded-lg text-white font-bold bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
                 {isSendingInvoice ? '📧 Sending Invoice...' : '📧 Generate & Send Invoice'}

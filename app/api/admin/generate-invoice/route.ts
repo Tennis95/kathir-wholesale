@@ -14,11 +14,11 @@ const transporter = nodemailer.createTransport({
 
 export async function POST(req: NextRequest) {
   try {
-    const { orderId, price, reason } = await req.json();
+    const { orderId, itemPrices, reason } = await req.json();
 
-    if (!orderId || price === undefined) {
+    if (!orderId || !itemPrices || typeof itemPrices !== 'object') {
       return NextResponse.json(
-        { success: false, message: 'Missing orderId or price' },
+        { success: false, message: 'Missing orderId or itemPrices' },
         { status: 400 }
       );
     }
@@ -34,14 +34,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Update order with final price
-    order.total = price;
+    // Update each item's price and recalculate total
+    let newTotal = 0;
+    order.items.forEach((item: any, index: number) => {
+      const price = parseFloat(itemPrices[index]) || 0;
+      item.price = price;
+      newTotal += price * (item.quantity || 1);
+    });
+
+    // Update order with new prices and total
+    order.total = newTotal;
     order.status = 'invoice_sent';
     order.notes = reason || 'Price reviewed and approved by admin';
     await order.save();
 
     // Generate invoice HTML
-    const invoiceHtml = generateInvoiceHTML(order, price);
+    const invoiceHtml = generateInvoiceHTML(order, newTotal);
 
     // Send invoice email
     if (order.userId?.email) {
