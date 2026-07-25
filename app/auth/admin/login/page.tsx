@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { isAdminAuthenticated } = useAdminAuth();
+  const { isAdminAuthenticated, setAdminAuth } = useAdminAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -44,9 +44,7 @@ export default function AdminLoginPage() {
       }
 
       const data = await res.json();
-      // Store in admin-specific keys
-      localStorage.setItem('kathir-admin-user', JSON.stringify(data.user));
-      localStorage.setItem('kathir-admin-token', data.token);
+      setAdminAuth(data.user, data.token);
       router.push('/admin');
     } catch (err: any) {
       setError(err.message || 'Login failed. Please try again.');
