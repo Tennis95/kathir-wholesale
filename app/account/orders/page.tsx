@@ -21,7 +21,7 @@ interface Order {
 }
 
 export default function OrdersHistoryPage() {
-  const { isAuthenticated, token, isLoading } = useAuth();
+  const { isAuthenticated, token, isLoading, user } = useAuth();
   const router = useRouter();
   const redirectedRef = useRef(false);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -134,6 +134,52 @@ export default function OrdersHistoryPage() {
             My Orders
           </h1>
         </motion.div>
+
+        {/* Customer Information Card */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          >
+            <h2 className="text-2xl font-bold mb-6" style={{ color: '#2D7BA8' }}>
+              Your Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Full Name</p>
+                <p className="text-lg font-semibold text-gray-900">{user.name || 'Not provided'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Email Address</p>
+                <p className="text-lg font-semibold text-gray-900">{user.email || 'Not provided'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Mobile Number</p>
+                <p className="text-lg font-semibold text-gray-900">{user.phone || 'Not provided'}</p>
+              </div>
+              {user.address && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Address</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {user.address.street || ''} {user.address.city || ''}
+                  </p>
+                  {user.address.state && <p className="text-sm text-gray-600">{user.address.state}, {user.address.zipCode}</p>}
+                </div>
+              )}
+            </div>
+            <div className="mt-6">
+              <a
+                href="/account"
+                className="inline-block px-6 py-2 rounded-lg font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)' }}
+              >
+                Edit Profile
+              </a>
+            </div>
+          </motion.div>
+        )}
 
         {loading ? (
           <p className="text-gray-600">Loading orders...</p>
