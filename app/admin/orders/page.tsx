@@ -697,10 +697,10 @@ export default function OrdersPage() {
 
             <div className="mb-6 pb-4 border-b">
               <p className="text-sm text-gray-600"><strong>Order ID:</strong> {selectedOrder.orderNumber}</p>
-              <p className="text-sm text-gray-600"><strong>Customer:</strong> {selectedOrder.userId?.name}</p>
-              <p className="text-sm text-gray-600"><strong>Email:</strong> {selectedOrder.userId?.email}</p>
-              <p className="text-sm text-gray-600"><strong>Total:</strong> £{selectedOrder.total?.toFixed(2)}</p>
-              <p className="text-sm text-gray-600 mt-2"><strong>Current Status:</strong> {selectedOrder.status?.charAt(0).toUpperCase() + selectedOrder.status?.slice(1)}</p>
+              <p className="text-sm text-gray-600"><strong>Customer:</strong> {typeof selectedOrder.userId === 'object' ? selectedOrder.userId?.name : 'Loading...'}</p>
+              <p className="text-sm text-gray-600"><strong>Email:</strong> {typeof selectedOrder.userId === 'object' ? selectedOrder.userId?.email : 'Loading...'}</p>
+              <p className="text-sm text-gray-600"><strong>Total:</strong> £{editPrice ? parseFloat(editPrice).toFixed(2) : (selectedOrder.total?.toFixed(2) || '0.00')}</p>
+              <p className="text-sm text-gray-600 mt-2"><strong>Current Status:</strong> <span className={`px-2 py-1 rounded text-xs font-semibold ${editPrice && parseFloat(editPrice) !== selectedOrder.total ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>{editPrice && parseFloat(editPrice) !== selectedOrder.total ? 'Price Updated (Pending Invoice)' : selectedOrder.status?.charAt(0).toUpperCase() + selectedOrder.status?.slice(1)}</span></p>
             </div>
 
             {/* Products Section */}
