@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendOrderEmail(order: any, pdfBuffer: Buffer) {
   try {
-    const businessEmail = process.env.BUSINESS_EMAIL || 'orders@kathir.co.uk';
+    const businessEmail = process.env.BUSINESS_EMAIL || 'kishantholive@gmail.com';
     const attachments = [
       {
         filename: `Invoice-${order.invoiceNo || order.orderId}.pdf`,
@@ -22,7 +22,7 @@ export async function sendOrderEmail(order: any, pdfBuffer: Buffer) {
     // Send to customer
     if (order.email) {
       await transporter.sendMail({
-        from: process.env.EMAIL_USER || 'orders@kathir.co.uk',
+        from: process.env.EMAIL_USER || 'kishantholive@gmail.com',
         to: order.email,
         subject: `Order Confirmation - ${order.orderId}`,
         html: customerEmailHTML(order),
@@ -85,7 +85,7 @@ function customerEmailHTML(order: any): string {
 
         <div class="footer">
           <p><strong>KATHIR LTD</strong></p>
-          <p>Phone: +44 (0) 1925 XXX XXX | Email: orders@kathir.co.uk</p>
+          <p>Phone: 07459 203724 | Email: kishantholive@gmail.com</p>
           <p>ISO 9001 Certified | Food Safety Standards | VAT Registered</p>
         </div>
       </div>

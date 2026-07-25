@@ -153,8 +153,8 @@ function InvoiceContent() {
           <div className="mb-6 pb-6 border-b-2" style={{ borderColor: '#E8F4FB' }}>
             <div className="text-xs text-gray-600 space-y-1">
               <p><strong>📍 Address:</strong> 31, Ferry Road, Scunthorpe DN15 8QF</p>
-              <p><strong>📞 Phone:</strong> +44 (0) 1925 XXX XXX</p>
-              <p><strong>📧 Email:</strong> orders@kathir.co.uk</p>
+              <p><strong>📞 Phone:</strong> 07459 203724</p>
+              <p><strong>📧 Email:</strong> kishantholive@gmail.com</p>
               <p><strong>🏢 VAT Number:</strong> GB XXX XXX XXX</p>
             </div>
           </div>
@@ -272,7 +272,7 @@ function InvoiceContent() {
               © 2026 KATHIR LTD. All rights reserved. | Reg No. 16001575
             </p>
             <p className="text-xs text-gray-600">
-              📧 orders@kathir.co.uk | 📞 +44 (0) 1925 XXX XXX
+              📧 kishantholive@gmail.com | 📞 07459 203724
             </p>
             <p className="text-xs text-gray-600 mt-2 italic">
               Thank you for your business!

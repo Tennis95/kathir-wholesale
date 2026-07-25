@@ -59,10 +59,10 @@ export default function Footer() {
               GET IN TOUCH
             </h4>
             <ul className="space-y-3 text-sm" style={{ color: '#E5E7EB', opacity: 0.8 }}>
-              <li>📞 +44 XXX XXX XXXX</li>
+              <li>📞 07459 203724</li>
               <li>
-                <a href="mailto:sales@kathirltd.co.uk" className="transition hover:opacity-100">
-                  📧 sales@kathirltd.co.uk
+                <a href="mailto:kishantholive@gmail.com" className="transition hover:opacity-100">
+                  📧 kishantholive@gmail.com
                 </a>
               </li>
               <li>🕐 Mon–Fri: 8AM–6PM · Sat: 9AM–2PM</li>

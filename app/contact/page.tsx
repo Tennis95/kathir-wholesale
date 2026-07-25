@@ -249,9 +249,9 @@ export default function ContactPage() {
               </h3>
               <p className="text-gray-600 leading-relaxed text-sm">
                 <span style={{ color: '#1F2937', fontWeight: '600' }}>KATHIR LTD</span><br/>
-                Warehouse & Distribution Center<br/>
-                Unit 5, Industrial Estate<br/>
-                Warrington, Cheshire WA5 6TE<br/>
+                31, Ferry Road<br/>
+                Scunthorpe<br/>
+                DN15 8QF<br/>
                 United Kingdom
               </p>
             </motion.div>
@@ -279,11 +279,11 @@ export default function ContactPage() {
               <div className="space-y-3 text-sm">
                 <p className="text-gray-600">
                   <span style={{ color: '#1F2937', fontWeight: '600' }}>Phone:</span><br/>
-                  +44 (0) 1925 XXX XXX
+                  07459 203724
                 </p>
                 <p className="text-gray-600">
                   <span style={{ color: '#1F2937', fontWeight: '600' }}>Email:</span><br/>
-                  orders@kathir.co.uk
+                  kishantholive@gmail.com
                 </p>
                 <p className="text-gray-600">
                   <span style={{ color: '#1F2937', fontWeight: '600' }}>Hours:</span><br/>

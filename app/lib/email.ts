@@ -48,9 +48,9 @@ export async function sendInvoiceEmail(invoiceData: InvoiceData, adminEmail: str
             <h1 style="margin: 0; color: #2D7BA8; font-size: 24px;">KATHIR LTD</h1>
             <p style="margin: 5px 0; color: #666; font-size: 13px;">Premium Wholesale Groceries</p>
             <p style="margin: 5px 0; color: #666; font-size: 12px;">
-              31, Retail Park, London<br>
-              Phone: +44 20 XXXX XXXX<br>
-              Email: sales@kathirltd.co.uk
+              31, Ferry Road, Scunthorpe, DN15 8QF<br>
+              Phone: 07459 203724<br>
+              Email: kishantholive@gmail.com
             </p>
           </div>
           <div style="text-align: right;">
@@ -136,7 +136,7 @@ export async function sendInvoiceEmail(invoiceData: InvoiceData, adminEmail: str
       <!-- Footer -->
       <div style="border-top: 2px solid #2D7BA8; padding-top: 15px; font-size: 11px; color: #666;">
         <p style="margin: 0;">VAT Number: [Your VAT]</p>
-        <p style="margin: 5px 0; text-align: center;">© 2026 KATHIR LTD. All rights reserved. | For support contact: sales@kathirltd.co.uk</p>
+        <p style="margin: 5px 0; text-align: center;">© 2026 KATHIR LTD. All rights reserved. | For support contact: kishantholive@gmail.com</p>
       </div>
     </div>
   `;
