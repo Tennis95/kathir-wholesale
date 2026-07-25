@@ -68,9 +68,15 @@ export default function AccountPage() {
   };
 
   const handleSaveProfile = async () => {
+    if (!user?._id && !user?.id) {
+      alert('Error: User ID not found');
+      return;
+    }
+
     setSaving(true);
     try {
-      const res = await fetch(`/api/users/${user?._id}`, {
+      const userId = user?._id || user?.id;
+      const res = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -87,7 +93,8 @@ export default function AccountPage() {
         setIsEditing(false);
         alert('Profile updated successfully');
       } else {
-        alert('Failed to update profile');
+        const error = await res.json();
+        alert(error.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
