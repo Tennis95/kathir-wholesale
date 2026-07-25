@@ -9,6 +9,13 @@ interface User {
   email: string;
   phone?: string;
   role: 'customer' | 'admin';
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }
 
 interface AuthContextType {
