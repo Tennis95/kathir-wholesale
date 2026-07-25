@@ -153,7 +153,7 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
