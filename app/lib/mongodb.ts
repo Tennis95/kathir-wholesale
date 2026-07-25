@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+// Import all models to ensure schemas are registered
+import '@/lib/models/User';
+import '@/lib/models/Order';
+import '@/lib/models/Product';
+
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Debug: Log connection status
