@@ -37,10 +37,13 @@ export default function SignupPage() {
 
     try {
       await signup(formData.name, formData.email, formData.password, formData.confirmPassword);
+      
+      // Smooth transition delay to prevent blinking
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       router.push('/account');
     } catch (err: any) {
       setError(err.message || 'Signup failed. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -80,41 +83,20 @@ export default function SignupPage() {
                 </p>
               </div>
 
-              {/* Benefits */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#8FD3F4' }}>
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm">Exclusive Member Deals</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#8FD3F4' }}>
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm">Fast Checkout Process</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#8FD3F4' }}>
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm">Secure & Protected</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#8FD3F4' }}>
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm">24/7 Customer Support</span>
-                </div>
-              </div>
+              <ul className="space-y-3">
+                <li className="flex items-center gap-3 text-sm">
+                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                  Free delivery on orders over £50
+                </li>
+                <li className="flex items-center gap-3 text-sm">
+                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                  Exclusive wholesale prices
+                </li>
+                <li className="flex items-center gap-3 text-sm">
+                  <span className="w-2 h-2 bg-white rounded-full"></span>
+                  24/7 customer support
+                </li>
+              </ul>
             </motion.div>
           </div>
 
@@ -167,7 +149,8 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="Your full name"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm"
+                  disabled={loading}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -188,7 +171,8 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="your@email.com"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm"
+                  disabled={loading}
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -209,7 +193,8 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="Password"
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition text-sm"
+                  disabled={loading}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -230,26 +215,33 @@ export default function SignupPage() {
                   onChange={handleChange}
                   placeholder="Confirm password"
                   required
-                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition text-sm"
+                  disabled={loading}
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition text-sm disabled:bg-gray-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
 
             {/* Sign Up Button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={!loading ? { scale: 1.02 } : {}}
+              whileTap={!loading ? { scale: 0.98 } : {}}
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-md font-bold text-white transition-all duration-300 text-sm mt-2"
+              className="w-full py-2.5 rounded-md font-bold text-white transition-all duration-300 text-sm mt-2 flex items-center justify-center gap-2"
               style={{
                 background: loading ? '#A0C9E5' : 'linear-gradient(135deg, #2D7BA8 0%, #1E5A7A 100%)',
               }}
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating account...
+                </>
+              ) : (
+                'Create Account'
+              )}
             </motion.button>
           </form>
-
 
           {/* Login Link */}
           <p className="text-center mt-4 text-sm text-gray-600">
