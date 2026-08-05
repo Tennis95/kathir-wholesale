@@ -112,7 +112,7 @@ function CategoriesContent() {
       '728': 'KATHIR KERALA MIXTURE SPICY 300GM.png',
       '729': 'kathir madurasava 150gm.png',
       '730': 'KATHIR RICE MURUKKU 150GM.png',
-      '731': 'ponkathir matta rice.png',
+      '731': 'Kathir Palakkadan Matta Rice) 1 Kg (Loose).png',
       '732': 'Kathir Mung Bean (Cheruparu) 1+ 1.png',
       '733': 'KATHIR MURUKKU TOMATO 150GM.png',
       '734': 'KATHIR PAKKAVADA 150GM.png',
